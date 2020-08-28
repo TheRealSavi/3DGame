@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import toolBox.Input;
 
 import java.nio.DoubleBuffer;
@@ -21,24 +22,40 @@ public class DisplayManager {
   private static double lastFrameTime;
   private static double deltaTime;
   
+  private static int lastFPSChars;
+  
   private static Vector2f lastFrameCursorPos = new Vector2f(0, 0);
   private static Vector2f deltaCursorPos = new Vector2f(0, 0);
   
   private static Input input;
   
   public static void createDisplay() {
-    windowReference = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", 0, 0);
+    if (!glfwInit()) { //initialize GLFW
+      throw new IllegalStateException("Failed to initialize GLFW!");
+    } else {
+      System.out.println("GLFW initialized successfully!");
+    }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //GLFW settings
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    // -- end glfw initialization -- \\
+    
+    windowReference = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", 0, 0); //spawn a GLFW Window
     if (windowReference == 0) {
       throw new IllegalStateException("Failed to create Window!");
     }
     
-    GLFWVidMode vid = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    if (vid != null) {
-      glfwSetWindowPos(windowReference, (vid.width() - WIDTH) / 2, (vid.height() - HEIGHT) / 2);
+    GLFWVidMode monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    if (monitor != null) {
+      glfwSetWindowPos(windowReference, (monitor.width() - WIDTH) / 2, (monitor.height() - HEIGHT) / 2);
+    } else {
+      System.out.println("Could not get Primary Monitor");
     }
     
     glfwShowWindow(windowReference);
     glfwMakeContextCurrent(windowReference);
+    GL.createCapabilities();
     
     input = new Input(windowReference);
     lastFrameTime = getCurrentTime();
@@ -70,6 +87,7 @@ public class DisplayManager {
     glfwSetInputMode(windowReference, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported()) {
       glfwSetInputMode(windowReference, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+      System.out.println("Raw Input is enabled!");
     } else {
       System.out.println("Raw Input not enabled!");
     }
@@ -113,10 +131,18 @@ public class DisplayManager {
     lastFrameTime = currentFrameTime;
     
     Vector2f currentCursorPos = getCursorPos();
-    currentCursorPos.sub(lastFrameCursorPos, deltaCursorPos);
+    deltaCursorPos = currentCursorPos.sub(lastFrameCursorPos, deltaCursorPos);
     lastFrameCursorPos = currentCursorPos;
     
     glfwSwapBuffers(windowReference);
+  }
+  
+  public static void logFPS() {
+    for (int i = 0; i < lastFPSChars + 6; i++) {
+      System.out.print("\b");
+    }
+    System.out.print("FPS : " + DisplayManager.getCurrentFPS());
+    lastFPSChars = Float.toString(DisplayManager.getCurrentFPS()).length();
   }
   
   public static double getDeltaTime() {
@@ -135,4 +161,9 @@ public class DisplayManager {
   public static Input getInput() {
     return input;
   }
+  
+  public static void pollSystemEvents() {
+    glfwPollEvents();
+  }
+  
 }
