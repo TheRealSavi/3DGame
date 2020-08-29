@@ -2,6 +2,7 @@ package renderEngine;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -54,6 +55,10 @@ public abstract class ShaderProgram {
   
   protected void loadVector(int location, Vector3f vector) {
     GL20.glUniform3f(location, vector.x, vector.y, vector.z);
+  }
+  
+  protected void loadVector(int location, Vector4f vector) {
+    GL20.glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
   }
   
   protected void loadBoolean(int location, boolean value) {

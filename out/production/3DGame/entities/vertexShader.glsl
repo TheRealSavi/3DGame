@@ -13,8 +13,11 @@ out float visibility;
 uniform mat4 transformationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+
 uniform vec3 lightPosition[4];
 uniform float useFakeLighting;
+
+uniform vec4 clippingPlane;
 
 const float fogDensity = 0.003;
 const float fogGradient = 6;
@@ -25,6 +28,9 @@ void main(void) {
     vec4 worldSpace = transformationMatrix * localSpace;
     vec4 cameraSpace = viewMatrix * worldSpace;
     vec4 clipSpace = projectionMatrix * cameraSpace;
+
+    gl_ClipDistance[0] = dot(worldSpace, clippingPlane);
+
     gl_Position = clipSpace;
 
     pass_coords = textureCoords;

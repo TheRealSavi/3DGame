@@ -4,6 +4,7 @@ import entities.Camera;
 import entities.Light;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import renderEngine.ShaderProgram;
 import toolBox.Maths;
 
@@ -22,6 +23,7 @@ public class TerrainShader extends ShaderProgram {
   private int location_shineDamper;
   private int location_reflectivity;
   //private int location_skyColor;
+  private int location_clippingPlane;
   private int location_backgroundTexture;
   private int location_rTexture;
   private int location_gTexture;
@@ -44,6 +46,7 @@ public class TerrainShader extends ShaderProgram {
     location_shineDamper = super.getUniformLocation("shineDamper");
     location_reflectivity = super.getUniformLocation("reflectivity");
     //location_skyColor = super.getUniformLocation("skyColor");
+    location_clippingPlane = super.getUniformLocation("clippingPlane");
     location_backgroundTexture = super.getUniformLocation("backgroundTexture");
     location_rTexture = super.getUniformLocation("rTexture");
     location_gTexture = super.getUniformLocation("gTexture");
@@ -75,6 +78,9 @@ public class TerrainShader extends ShaderProgram {
     super.loadInt(location_blendMap, 4);
   }
   
+  public void loadClippingPlane(Vector4f clippingPlane) {
+    super.loadVector(location_clippingPlane, clippingPlane);
+  }
   
   //public void loadSkyColor(Vector3f skyColor) {
   //  super.loadVector(location_skyColor, skyColor);

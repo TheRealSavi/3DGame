@@ -1,47 +1,56 @@
-package entities;
+package water;
 
+import entities.Camera;
+import entities.Light;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import renderEngine.ShaderProgram;
 import toolBox.Maths;
 
 import java.util.List;
 
-public class EntityShader extends ShaderProgram {
+public class WaterShader extends ShaderProgram {
   
   private static final int MAX_LIGHTS = 4;
   
-  private static final String VERTEX_FILE = "src/entities/vertexShader.glsl";
-  private static final String FRAGMENT_FILE = "src/entities/fragmentShader.glsl";
+  private final static String VERTEX_FILE = "src/water/waterVertex.glsl";
+  private final static String FRAGMENT_FILE = "src/water/waterFragment.glsl";
   
-  private int location_transformationMatrix;
   private int location_projectionMatrix;
   private int location_viewMatrix;
+  private int location_modelMatrix;
+  private int location_reflectionTexture;
+  private int location_refractionTexture;
+  private int location_distortionMap;
+  private int location_moveFactor;
+  private int location_cameraPosition;
   private int location_shineDamper;
   private int location_reflectivity;
-  private int location_useFakeLighting;
-  //private int location_skyColor;
-  private int location_clippingPlane;
   private int[] location_lightPosition;
   private int[] location_lightColor;
   private int[] location_attenuation;
   
-  
-  public EntityShader() {
+  public WaterShader() {
     super(VERTEX_FILE, FRAGMENT_FILE);
   }
   
   @Override
+  protected void bindAttributes() {
+    bindAttribute(0, "position");
+  }
+  
+  @Override
   protected void getAllUniformLocations() {
-    location_transformationMatrix = super.getUniformLocation("transformationMatrix");
-    location_projectionMatrix = super.getUniformLocation("projectionMatrix");
-    location_viewMatrix = super.getUniformLocation("viewMatrix");
+    location_projectionMatrix = getUniformLocation("projectionMatrix");
+    location_viewMatrix = getUniformLocation("viewMatrix");
+    location_modelMatrix = getUniformLocation("modelMatrix");
+    location_reflectionTexture = getUniformLocation("reflectionTexture");
+    location_refractionTexture = getUniformLocation("refractionTexture");
+    location_distortionMap = getUniformLocation("distortionMap");
+    location_moveFactor = getUniformLocation("moveFactor");
+    location_cameraPosition = getUniformLocation("cameraPosition");
     location_shineDamper = super.getUniformLocation("shineDamper");
     location_reflectivity = super.getUniformLocation("reflectivity");
-    location_useFakeLighting = super.getUniformLocation("useFakeLighting");
-    //location_skyColor = super.getUniformLocation("skyColor");
-    location_clippingPlane = super.getUniformLocation("clippingPlane");
     location_lightPosition = new int[MAX_LIGHTS];
     location_lightColor = new int[MAX_LIGHTS];
     location_attenuation = new int[MAX_LIGHTS];
@@ -50,25 +59,6 @@ public class EntityShader extends ShaderProgram {
       location_lightColor[i] = super.getUniformLocation("lightColor[" + i + "]");
       location_attenuation[i] = super.getUniformLocation("attenuation[" + i + "]");
     }
-  }
-  
-  @Override
-  protected void bindAttributes() {
-    super.bindAttribute(0, "position");
-    super.bindAttribute(1, "textureCoords");
-    super.bindAttribute(2, "normal");
-  }
-  
-  //public void loadSkyColor(Vector3f skyColor) {
-  //  super.loadVector(location_skyColor, skyColor);
-  //}
-  
-  public void loadClippingPlane(Vector4f clippingPlane) {
-    super.loadVector(location_clippingPlane, clippingPlane);
-  }
-  
-  public void loadFakeLightingVariable(boolean useFakeLighting) {
-    super.loadBoolean(location_useFakeLighting, useFakeLighting);
   }
   
   public void loadShineVariables(float damper, float reflectivity) {
@@ -90,8 +80,18 @@ public class EntityShader extends ShaderProgram {
     }
   }
   
-  public void loadTransformationMatrix(Matrix4f transform) {
-    super.loadMatrix(location_transformationMatrix, transform);
+  public void loadCameraPosition(Vector3f cameraPosition) {
+    super.loadVector(location_cameraPosition, cameraPosition);
+  }
+  
+  public void loadMoveFactor(float moveFactor) {
+    super.loadFloat(location_moveFactor, moveFactor);
+  }
+  
+  public void connectTextureUnits() {
+    super.loadInt(location_reflectionTexture, 0);
+    super.loadInt(location_refractionTexture, 1);
+    super.loadInt(location_distortionMap, 2);
   }
   
   public void loadProjectionMatrix(Matrix4f projection) {
@@ -101,6 +101,10 @@ public class EntityShader extends ShaderProgram {
   public void loadViewMatrix(Camera camera) {
     Matrix4f viewMatrix = Maths.createViewMatrix(camera);
     super.loadMatrix(location_viewMatrix, viewMatrix);
+  }
+  
+  public void loadModelMatrix(Matrix4f modelMatrix) {
+    super.loadMatrix(location_modelMatrix, modelMatrix);
   }
   
 }

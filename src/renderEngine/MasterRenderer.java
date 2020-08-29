@@ -2,6 +2,7 @@ package renderEngine;
 
 import entities.*;
 import models.Model;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import skybox.SkyboxRenderer;
 import skybox.SkyboxShader;
@@ -46,7 +47,7 @@ public class MasterRenderer {
     GL11.glDisable(GL11.GL_CULL_FACE);
   }
   
-  public void render(List<Light> lights, Camera camera) {
+  public void render(List<Light> lights, Camera camera, Vector4f clippingPlane) {
     prepare();
     
     skyboxShader.start();
@@ -57,6 +58,7 @@ public class MasterRenderer {
     skyboxShader.stop();
     
     entityShader.start();
+    entityShader.loadClippingPlane(clippingPlane);
     entityShader.loadProjectionMatrix(camera.getProjectionMatrix());
     //entityShader.loadSkyColor(skyColor);
     entityShader.loadLights(lights);
@@ -65,6 +67,7 @@ public class MasterRenderer {
     entityShader.stop();
     
     terrainShader.start();
+    terrainShader.loadClippingPlane(clippingPlane);
     terrainShader.loadProjectionMatrix(camera.getProjectionMatrix());
     //terrainShader.loadSkyColor(skyColor);
     terrainShader.loadLights(lights);

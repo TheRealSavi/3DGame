@@ -104,6 +104,14 @@ public class Camera {
     return this.FOV;
   }
   
+  public float getNEAR_PLANE() {
+    return NEAR_PLANE;
+  }
+  
+  public float getFAR_PLANE() {
+    return FAR_PLANE;
+  }
+  
   public void setPosition(Vector3f newPos) {
     this.position = newPos;
   }
