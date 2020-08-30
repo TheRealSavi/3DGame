@@ -12,6 +12,7 @@ import org.joml.Vector3f;
 import renderEngine.Loader;
 import terrains.Terrain;
 import terrains.TerrainTexturePack;
+import water.WaterTile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class Game {
   public static List<Entity> entities = new ArrayList<>();
   public static List<Terrain> terrains = new ArrayList<>();
   public static List<Gui> guis = new ArrayList<>();
+  public static List<WaterTile> waters = new ArrayList<>();
   
   
   public static void loadLightsAndCamera() {
@@ -71,6 +73,10 @@ public class Game {
     //create gui
     Gui gui = new Gui(Loader.loadTexture("cross"), new Vector2f(0f, 0f), new Vector2f(0.02f, 0.02f));
     guis.add(gui);
+    
+    //create some water
+    WaterTile water = new WaterTile(400, -400, -7);
+    waters.add(water);
     
     RawModel raw = OBJFileLoader.loadOBJ("stall");
     Model model = new Model(Loader.loadTexture("stallTexture"), raw);

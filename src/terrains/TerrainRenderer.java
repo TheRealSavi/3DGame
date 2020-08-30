@@ -28,7 +28,7 @@ public class TerrainRenderer {
   }
   
   public static void render(Camera camera, List<Light> lights) {
-    render(camera,lights, new Vector4f(0,0,0,0));
+    render(camera, lights, new Vector4f(0, 0, 0, 0));
   }
   
   public static void render(Camera camera, List<Light> lights, Vector4f clippingPlane) {
