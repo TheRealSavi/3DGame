@@ -1,5 +1,6 @@
 package skybox;
 
+import entities.Camera;
 import models.RawModel;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -8,6 +9,8 @@ import org.lwjgl.opengl.GL30;
 import renderEngine.Loader;
 
 public class SkyboxRenderer {
+  
+  private static final SkyboxShader shader = new SkyboxShader();
   
   private static final float SIZE = 500f;
   
@@ -59,22 +62,19 @@ public class SkyboxRenderer {
   private static final String[] NIGHT_TEXTURE_FILES = {"nightRight", "nightLeft", "nightTop", "nightBottom", "nightBack", "nightFront"};
   private static final RawModel CUBE = Loader.loadToVAO(VERTICES, 3);
   
-  private final int textureID;
-  private final int nightTextureID;
-  private final SkyboxShader shader;
+  private static final int textureID = Loader.loadCubeMap(TEXTURE_FILES);
+  private static final int nightTextureID = Loader.loadCubeMap(NIGHT_TEXTURE_FILES);
   
-  public SkyboxRenderer(SkyboxShader shader) {
-    this.shader = shader;
-    
-    this.textureID = Loader.loadCubeMap(TEXTURE_FILES);
-    this.nightTextureID = Loader.loadCubeMap(NIGHT_TEXTURE_FILES);
-    
+  public static void loadInUnits() {
     shader.start();
     shader.connectTextureUnits();
     shader.stop();
   }
   
-  public void render() {
+  public static void render(Camera camera) {
+    shader.start();
+    shader.loadProjectionMatrix(camera.getProjectionMatrix());
+    shader.loadViewMatrix(camera);
     
     GL11.glDisable(GL11.GL_DEPTH_TEST);
     
@@ -89,13 +89,19 @@ public class SkyboxRenderer {
     
     GL11.glEnable(GL11.GL_DEPTH_TEST);
     
+    shader.stop();
+    
   }
   
-  private void bindTextures() {
+  private static void bindTextures() {
     GL13.glActiveTexture(GL13.GL_TEXTURE0);
     GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, textureID);
     GL13.glActiveTexture(GL13.GL_TEXTURE1);
     GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, nightTextureID);
     shader.loadBlendFactor(0.0f);
+  }
+  
+  public static void cleanUp() {
+    shader.cleanUp();
   }
 }

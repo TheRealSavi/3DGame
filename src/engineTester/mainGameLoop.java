@@ -2,6 +2,7 @@ package engineTester;
 
 import entities.Camera;
 import entities.Entity;
+import entities.EntityRenderer;
 import guis.GuiRenderer;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -12,7 +13,9 @@ import postProcessing.PostProcessor;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
+import skybox.SkyboxRenderer;
 import terrains.Terrain;
+import terrains.TerrainRenderer;
 import water.WaterRenderer;
 import water.WaterTile;
 
@@ -33,26 +36,33 @@ public class mainGameLoop {
     //create the PostProcessing FBO
     int[] size = DisplayManager.getFrameBufferSize();
     Fbo sceneFBO = new Fbo(size[0], size[1], Fbo.DEPTH_RENDER_BUFFER);
-    
-    //create the master renderer
-    MasterRenderer renderer = new MasterRenderer();
-    
-    Game.loadLightsAndCamera();
-    
-    
+  
+    //create some water
     List<WaterTile> waters = new ArrayList<>();
     WaterTile water = new WaterTile(400, -400, -7);
     waters.add(water);
     
+    //prepare terrain and skybox renderers
+    TerrainRenderer.loadInUnits();
+    SkyboxRenderer.loadInUnits();
+    
+    //pre load lights and cameras
+    Game.loadLightsAndCamera();
+    
+    //enable culling by default
+    MasterRenderer.enableCulling();
+    
+    //main game loop
     while (!DisplayManager.shouldClose()) {
-      DisplayManager.pollSystemEvents();
+      DisplayManager.pollSystemEvents(); //allows glfw to do system level window management
       
-      DisplayManager.logFPS();
+      DisplayManager.logFPS(); //logs fps to console
       
       switch (Game.state) {
         case MENU:
-          
-          renderer.render(Game.lights, Game.cameras.get(0), new Vector4f(0, 0, 0, 0));
+  
+          MasterRenderer.prepare(); //clears the render buffer
+          SkyboxRenderer.render(Game.cameras.get(0));
           
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ENTER)) {
             Game.loadGameObjects();
@@ -70,11 +80,12 @@ public class mainGameLoop {
           GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
           
           WaterRenderer.bindReflectionFBO();
+          
           for (Entity entity : Game.entities) {
-            renderer.processEntity(entity);
+            EntityRenderer.addEntity(entity);
           }
           for (Terrain terrain : Game.terrains) {
-            renderer.processTerrain(terrain);
+            TerrainRenderer.addTerrain(terrain);
           }
           
           float distanceToMove = 2 * (Game.cameras.get(0).getPosition().y - water.getHeight());
@@ -84,30 +95,44 @@ public class mainGameLoop {
           reflectionCamera.setPitch(-Game.cameras.get(0).getPitch());
           reflectionCamera.setYaw(Game.cameras.get(0).getYaw());
           reflectionCamera.setRoll(Game.cameras.get(0).getRoll());
-          
-          renderer.render(Game.lights, reflectionCamera, new Vector4f(0, 1, 0, -water.getHeight()));
+  
+          Vector4f clippingPlane = new Vector4f(0, 1, 0, -water.getHeight());
+  
+          MasterRenderer.prepare(); //clears the render buffer
+          SkyboxRenderer.render(reflectionCamera);
+          EntityRenderer.render(reflectionCamera, Game.lights, clippingPlane);
+          TerrainRenderer.render(reflectionCamera, Game.lights, clippingPlane);
           WaterRenderer.unbindReflectionFBO();
           
           WaterRenderer.bindRefractionFBO();
           for (Entity entity : Game.entities) {
-            renderer.processEntity(entity);
+            EntityRenderer.addEntity(entity);
           }
           for (Terrain terrain : Game.terrains) {
-            renderer.processTerrain(terrain);
+            TerrainRenderer.addTerrain(terrain);
           }
-          renderer.render(Game.lights, Game.cameras.get(0), new Vector4f(0, -1, 0, water.getHeight()));
+          
+          clippingPlane = new Vector4f(0, -1, 0, water.getHeight());
+  
+          MasterRenderer.prepare(); //clears the render buffer
+          //SkyboxRenderer.render(Game.cameras.get(0));
+          EntityRenderer.render(Game.cameras.get(0), Game.lights, clippingPlane);
+          TerrainRenderer.render(Game.cameras.get(0), Game.lights, clippingPlane);
           WaterRenderer.unbindRefractionFBO();
           
           GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
           
           sceneFBO.bindFrameBuffer();
           for (Entity entity : Game.entities) {
-            renderer.processEntity(entity);
+            EntityRenderer.addEntity(entity);
           }
           for (Terrain terrain : Game.terrains) {
-            renderer.processTerrain(terrain);
+            TerrainRenderer.addTerrain(terrain);
           }
-          renderer.render(Game.lights, Game.cameras.get(0), new Vector4f(0, 0, 0, 0));
+          MasterRenderer.prepare(); //clears the render buffer
+          SkyboxRenderer.render(Game.cameras.get(0));
+          EntityRenderer.render(Game.cameras.get(0), Game.lights);
+          TerrainRenderer.render(Game.cameras.get(0), Game.lights);
           WaterRenderer.render(waters, Game.cameras.get(0), Game.lights);
           sceneFBO.unbindFrameBuffer();
           PostProcessor.doPostProcessing(sceneFBO.getColorTexture());
@@ -128,10 +153,13 @@ public class mainGameLoop {
     // on close
     PostProcessor.cleanUp();
     sceneFBO.cleanUp();
-    
-    renderer.cleanUp();
-    GuiRenderer.cleanUp();
+  
+    SkyboxRenderer.cleanUp();
+    EntityRenderer.cleanUp();
+    TerrainRenderer.cleanUp();
     WaterRenderer.cleanUp();
+    
+    GuiRenderer.cleanUp();
     
     Loader.cleanUp();
     DisplayManager.closeDisplay();
