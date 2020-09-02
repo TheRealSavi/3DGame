@@ -19,7 +19,7 @@ public class mainGameLoop {
   public static void main(String[] args) {
     
     //create window
-    DisplayManager.setSize(1280, 720);
+    DisplayManager.setSize(960, 720);
     DisplayManager.createDisplay();
     
     //prepare terrain and skybox renderers
@@ -61,7 +61,7 @@ public class mainGameLoop {
           
           Game.cameras.get(0).checkForUserInput();
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
-            DisplayManager.unlockCursor();
+            Game.terrains.get(0).regenModel();
           }
           
           break;

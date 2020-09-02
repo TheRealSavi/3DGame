@@ -6,6 +6,7 @@
       <w>glfw</w>
       <w>guis</w>
       <w>ortho</w>
+      <w>renderable</w>
       <w>shaders</w>
       <w>vao's</w>
       <w>vaos</w>

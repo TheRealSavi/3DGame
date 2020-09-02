@@ -57,7 +57,7 @@ void main(void) {
         vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * lightColor[i]) / attenuationFactor;
         totalSpecularLighting = totalSpecularLighting + finalSpecularLight;
     }
-    totalDiffusedLighting = max(totalDiffusedLighting, 0.3);
+    totalDiffusedLighting = max(totalDiffusedLighting, 0.38);
 
     vec4 lightedTextureColor = vec4(totalDiffusedLighting, 1.0) * finalTextureColor + vec4(totalSpecularLighting, 1.0);
     //out_color = mix(vec4(skyColor, 1.0), lightedTextureColor, visibility);

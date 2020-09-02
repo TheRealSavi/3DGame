@@ -10,7 +10,7 @@ public class Terrain {
   
   private final float x;
   private final float z;
-  private final RawModel model;
+  private RawModel model;
   private final TerrainTexturePack texturePack;
   private final int blendMapID;
   
@@ -20,6 +20,10 @@ public class Terrain {
     
     this.x = gridX * SIZE;
     this.z = gridZ * SIZE;
+    this.model = generateTerrain();
+  }
+  
+  public void regenModel() {
     this.model = generateTerrain();
   }
   

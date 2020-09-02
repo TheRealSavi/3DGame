@@ -36,8 +36,8 @@ public class WaterRenderer {
   private static float currentMoveFactor = 0;
   
   private static final int[] size = DisplayManager.getFrameBufferSize();
-  private static final Fbo reflection = new Fbo(size[0] / 4, size[1] / 4, Fbo.NONE);
-  private static final Fbo refraction = new Fbo(size[0] / 4, size[1] / 4, Fbo.NONE);
+  private static final Fbo reflection = new Fbo(size[0] / 2, size[1] / 2, Fbo.NONE);
+  private static final Fbo refraction = new Fbo(size[0] / 2, size[1] / 2, Fbo.DEPTH_TEXTURE);
   
   private static final List<WaterTile> waters = new ArrayList<>();
   
@@ -66,6 +66,12 @@ public class WaterRenderer {
     
     GL13.glActiveTexture(GL13.GL_TEXTURE2);
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, distortionMap);
+  
+    GL13.glActiveTexture(GL13.GL_TEXTURE3);
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, refraction.getDepthTexture());
+  
+    GL11.glEnable(GL11.GL_BLEND);
+    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     
     shader.connectTextureUnits();
     
@@ -73,7 +79,7 @@ public class WaterRenderer {
     shader.loadViewMatrix(camera);
     shader.loadCameraPosition(camera.getPosition());
     
-    shader.loadShineVariables(15f, 0.6f);
+    shader.loadShineVariables(30f, 0.5f);
     shader.loadLights(lights);
     
     currentMoveFactor += MOVE_SPEED * DisplayManager.getDeltaTime();
@@ -85,6 +91,8 @@ public class WaterRenderer {
       shader.loadModelMatrix(modelMatrix);
       GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, quad.getVertexCount());
     }
+    
+    GL11.glDisable(GL11.GL_BLEND);
     
     GL20.glDisableVertexAttribArray(0);
     GL30.glBindVertexArray(0);
@@ -116,7 +124,7 @@ public class WaterRenderer {
     reflectionCamera.setYaw(Game.cameras.get(0).getYaw());
     reflectionCamera.setRoll(Game.cameras.get(0).getRoll());
     
-    Vector4f clippingPlane = new Vector4f(0, 1, 0, -water.getHeight());
+    Vector4f clippingPlane = new Vector4f(0, 1, 0, -water.getHeight() - 1.0f);
     
     MasterRenderer.prepare();
     SkyboxRenderer.render(reflectionCamera);
@@ -136,10 +144,10 @@ public class WaterRenderer {
       TerrainRenderer.addTerrain(terrain);
     }
     
-    Vector4f clippingPlane = new Vector4f(0, -1, 0, water.getHeight());
+    Vector4f clippingPlane = new Vector4f(0, -1, 0, water.getHeight() + 1.0f);
     
     MasterRenderer.prepare();
-    //SkyboxRenderer.render(Game.cameras.get(0));
+    SkyboxRenderer.render(Game.cameras.get(0));
     EntityRenderer.render(Game.cameras.get(0), Game.lights, clippingPlane);
     TerrainRenderer.render(Game.cameras.get(0), Game.lights, clippingPlane);
     

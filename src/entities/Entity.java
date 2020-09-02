@@ -4,8 +4,8 @@ import models.Model;
 import org.joml.Vector3f;
 
 public class Entity {
-  private Model model;
   private Vector3f position;
+  private Model model;
   private float rotX, rotY, rotZ;
   private float scale;
   
@@ -30,20 +30,20 @@ public class Entity {
     this.rotZ += dz;
   }
   
-  public Model getModel() {
-    return model;
-  }
-  
-  public void setModel(Model model) {
-    this.model = model;
-  }
-  
   public Vector3f getPosition() {
     return position;
   }
   
   public void setPosition(Vector3f position) {
     this.position = position;
+  }
+  
+  public Model getModel() {
+    return this.model;
+  }
+  
+  public void setModel(Model model) {
+    this.model = model;
   }
   
   public float getRotX() {

@@ -26,6 +26,9 @@ public class WaterShader extends ShaderProgram {
   private int location_cameraPosition;
   private int location_shineDamper;
   private int location_reflectivity;
+  private int location_depthMap;
+  private int location_cameraNearPlane;
+  private int location_cameraFarPlane;
   private int[] location_lightPosition;
   private int[] location_lightColor;
   private int[] location_attenuation;
@@ -51,6 +54,9 @@ public class WaterShader extends ShaderProgram {
     location_cameraPosition = getUniformLocation("cameraPosition");
     location_shineDamper = super.getUniformLocation("shineDamper");
     location_reflectivity = super.getUniformLocation("reflectivity");
+    location_depthMap = super.getUniformLocation("depthMap");
+    location_cameraNearPlane = super.getUniformLocation("cameraNearPlane");
+    location_cameraFarPlane = super.getUniformLocation("cameraFarPlane");
     location_lightPosition = new int[MAX_LIGHTS];
     location_lightColor = new int[MAX_LIGHTS];
     location_attenuation = new int[MAX_LIGHTS];
@@ -92,6 +98,7 @@ public class WaterShader extends ShaderProgram {
     super.loadInt(location_reflectionTexture, 0);
     super.loadInt(location_refractionTexture, 1);
     super.loadInt(location_distortionMap, 2);
+    super.loadInt(location_depthMap, 3);
   }
   
   public void loadProjectionMatrix(Matrix4f projection) {
@@ -101,6 +108,9 @@ public class WaterShader extends ShaderProgram {
   public void loadViewMatrix(Camera camera) {
     Matrix4f viewMatrix = Maths.createViewMatrix(camera);
     super.loadMatrix(location_viewMatrix, viewMatrix);
+    
+    super.loadFloat(location_cameraNearPlane, camera.getNEAR_PLANE());
+    super.loadFloat(location_cameraFarPlane, camera.getFAR_PLANE());
   }
   
   public void loadModelMatrix(Matrix4f modelMatrix) {

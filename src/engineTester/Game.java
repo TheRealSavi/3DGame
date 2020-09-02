@@ -33,10 +33,10 @@ public class Game {
   
   public static void loadLightsAndCamera() {
     //create lights
-    lights.add(new Light(new Vector3f(400, 800, -400), new Vector3f(1.0f, 1.0f, 1.2f)));
-    lights.add(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
-    lights.add(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
-    lights.add(new Light(new Vector3f(293, 7, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
+    lights.add(new Light(new Vector3f(1300, 800, -1300), new Vector3f(1.0f, 1.0f, 1.0f)));
+    lights.add(new Light(new Vector3f(185, 2, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
+    lights.add(new Light(new Vector3f(370, 2, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
+    lights.add(new Light(new Vector3f(293, 2, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
     
     //create camera
     Camera camera = new Camera(90, 1, 2000);
