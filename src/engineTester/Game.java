@@ -68,15 +68,15 @@ public class Game {
     int blendMapID = Loader.loadTexture("blendMap");
     TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTextureID, rTextureID, gTextureID, bTextureID);
     
-    terrains.add(new Terrain(0, -1, texturePack, blendMapID));
+    //terrains.add(new Terrain(0, -1, texturePack, blendMapID));
     
     //create gui
     Gui gui = new Gui(Loader.loadTexture("cross"), new Vector2f(0f, 0f), new Vector2f(0.02f, 0.02f));
     guis.add(gui);
     
     //create some water
-    WaterTile water = new WaterTile(400, -400, -7);
-    waters.add(water);
+//    WaterTile water = new WaterTile(400, -400, -7);
+//    waters.add(water);
     
     RawModel raw = OBJFileLoader.loadOBJ("stall");
     Model model = new Model(Loader.loadTexture("stallTexture"), raw);
@@ -91,6 +91,14 @@ public class Game {
         for (int k = 0; k < 5; k++) {
           //entities.add(new Entity(model, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
         }
+      }
+    }
+    
+    for (int i = 0; i < 1; i++) {
+      for (int j = 0; j < 1; j++) {
+        terrains.add(new Terrain(i, j, texturePack, blendMapID));
+        WaterTile water = new WaterTile(400 + i * 800, 400 + j * 800, -7);
+        waters.add(water);
       }
     }
     

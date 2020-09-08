@@ -85,13 +85,11 @@ void main(void) {
 
     vec3 directionToCamera = normalize(toCameraVector);
     float refractiveFactor = dot(directionToCamera, normal);
-    refractiveFactor = refractiveFactor * refractiveFactor;
+    refractiveFactor = refractiveFactor * (refractiveFactor / 2);
 
     out_Color = mix(reflectColor, refractColor, refractiveFactor);
     out_Color = mix(out_Color, vec4(0.0, 0.3, 0.5, 1.0), 0.12) + vec4(totalSpecularLighting, 0.0);
     out_Color.a = clamp(waterDepth / 5, 0.2, 1.0);
-    out_Color = mix(out_Color, vec4(0.0, 0.3, 0.5, 1.0), clamp(waterDepth / 80.0, 0.0, 0.3));
-
-
+    out_Color = mix(out_Color, vec4(0.2, 0.4, 0.55, 1.0), clamp(waterDepth / 80.0, 0.0, 0.3));
 
 }

@@ -36,7 +36,7 @@ public class WaterRenderer {
   private static float currentMoveFactor = 0;
   
   private static final int[] size = DisplayManager.getFrameBufferSize();
-  private static final Fbo reflection = new Fbo(size[0] / 2, size[1] / 2, Fbo.NONE);
+  public static final Fbo reflection = new Fbo(size[0] / 2, size[1] / 2, Fbo.DEPTH_RENDER_BUFFER);
   private static final Fbo refraction = new Fbo(size[0] / 2, size[1] / 2, Fbo.DEPTH_TEXTURE);
   
   private static final List<WaterTile> waters = new ArrayList<>();
@@ -124,7 +124,7 @@ public class WaterRenderer {
     reflectionCamera.setYaw(Game.cameras.get(0).getYaw());
     reflectionCamera.setRoll(Game.cameras.get(0).getRoll());
     
-    Vector4f clippingPlane = new Vector4f(0, 1, 0, -water.getHeight() - 1.0f);
+    Vector4f clippingPlane = new Vector4f(0, 1, 0, -water.getHeight() );//- 1.0f);
     
     MasterRenderer.prepare();
     SkyboxRenderer.render(reflectionCamera);
