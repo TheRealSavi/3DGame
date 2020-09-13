@@ -1,5 +1,8 @@
 package entities;
 
+import engineTester.Game;
+import lights.DirectionalLight;
+import lights.PointLight;
 import models.Model;
 import models.RawModel;
 import org.joml.Matrix4f;
@@ -22,16 +25,19 @@ public class EntityRenderer {
   
   private static final Map<Model, List<Entity>> entities = new HashMap<>();
   
-  public static void render(Camera camera, List<Light> lights) {
-    render(camera, lights, new Vector4f(0, 0, 0, 0));
+  public static void render(Camera camera, List<PointLight> pointLights, List<DirectionalLight> directionalLights) {
+    render(camera, pointLights, directionalLights, new Vector4f(0, 0, 0, 0));
   }
   
-  public static void render(Camera camera, List<Light> lights, Vector4f clippingPlane) {
+  public static void render(Camera camera, List<PointLight> pointLights, List<DirectionalLight> directionalLights, Vector4f clippingPlane) {
     shader.start();
     shader.loadClippingPlane(clippingPlane);
     shader.loadProjectionMatrix(camera.getProjectionMatrix());
-    shader.loadLights(lights);
+    shader.loadPointLights(pointLights);
+    shader.loadDirectionalLights(directionalLights);
+    shader.loadCameraPosition(camera.getPosition());
     shader.loadViewMatrix(camera);
+    shader.loadFogDensity(Game.fogDensity);
     
     for (Model model : entities.keySet()) {
       prepareModel(model);
@@ -74,8 +80,8 @@ public class EntityRenderer {
   }
   
   private static void loadModelMatrix(Entity entity) {
-    Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
-    shader.loadTransformationMatrix(transformationMatrix);
+    Matrix4f modelMatrix = Maths.createModelMatrix(entity.getPosition(), entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
+    shader.loadModelMatrix(modelMatrix);
   }
   
   public static void addEntity(Entity entity) {

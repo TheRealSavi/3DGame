@@ -4,7 +4,8 @@ import engineTester.Game;
 import entities.Camera;
 import entities.Entity;
 import entities.EntityRenderer;
-import entities.Light;
+import lights.DirectionalLight;
+import lights.PointLight;
 import models.RawModel;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -52,7 +53,7 @@ public class WaterRenderer {
     GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
   }
   
-  public static void render(Camera camera, List<Light> lights) {
+  public static void render(Camera camera, List<PointLight> pointLights, List<DirectionalLight> directionalLights) {
     shader.start();
     
     GL30.glBindVertexArray(quad.getVaoID());
@@ -80,14 +81,17 @@ public class WaterRenderer {
     shader.loadCameraPosition(camera.getPosition());
     
     shader.loadShineVariables(30f, 0.5f);
-    shader.loadLights(lights);
+    shader.loadPointLights(pointLights);
+    shader.loadDirectionalLights(directionalLights);
+  
+    shader.loadFogDensity(Game.fogDensity);
     
     currentMoveFactor += MOVE_SPEED * DisplayManager.getDeltaTime();
     currentMoveFactor %= 1;
     shader.loadMoveFactor(currentMoveFactor);
     
     for (WaterTile tile : waters) {
-      Matrix4f modelMatrix = Maths.createTransformationMatrix(new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE);
+      Matrix4f modelMatrix = Maths.createModelMatrix(new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE);
       shader.loadModelMatrix(modelMatrix);
       GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, quad.getVertexCount());
     }
@@ -127,9 +131,9 @@ public class WaterRenderer {
     Vector4f clippingPlane = new Vector4f(0, 1, 0, -water.getHeight() );//- 1.0f);
     
     MasterRenderer.prepare();
-    SkyboxRenderer.render(reflectionCamera);
-    EntityRenderer.render(reflectionCamera, Game.lights, clippingPlane);
-    TerrainRenderer.render(reflectionCamera, Game.lights, clippingPlane);
+    SkyboxRenderer.render(reflectionCamera, Game.directionalLights.get(0));
+    EntityRenderer.render(reflectionCamera, Game.pointLights, Game.directionalLights, clippingPlane);
+    TerrainRenderer.render(reflectionCamera, Game.pointLights, Game.directionalLights, clippingPlane);
     
     reflection.unbindFrameBuffer();
   }
@@ -147,9 +151,9 @@ public class WaterRenderer {
     Vector4f clippingPlane = new Vector4f(0, -1, 0, water.getHeight() + 1.0f);
     
     MasterRenderer.prepare();
-    SkyboxRenderer.render(Game.cameras.get(0));
-    EntityRenderer.render(Game.cameras.get(0), Game.lights, clippingPlane);
-    TerrainRenderer.render(Game.cameras.get(0), Game.lights, clippingPlane);
+    SkyboxRenderer.render(Game.cameras.get(0), Game.directionalLights.get(0));
+    EntityRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights, clippingPlane);
+    TerrainRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights, clippingPlane);
     
     refraction.unbindFrameBuffer();
   }

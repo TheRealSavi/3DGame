@@ -4,6 +4,7 @@ import engineTester.Game;
 import entities.Entity;
 import entities.EntityRenderer;
 import guis.GuiRenderer;
+import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
 import postProcessing.Fbo;
 import postProcessing.PostProcessor;
@@ -51,10 +52,10 @@ public class MasterRenderer {
     sceneFBO.bindFrameBuffer();
     
     MasterRenderer.prepare();
-    SkyboxRenderer.render(Game.cameras.get(0));
-    EntityRenderer.render(Game.cameras.get(0), Game.lights);
-    TerrainRenderer.render(Game.cameras.get(0), Game.lights);
-    WaterRenderer.render(Game.cameras.get(0), Game.lights);
+    SkyboxRenderer.render(Game.cameras.get(0), Game.directionalLights.get(0));
+    EntityRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights);
+    TerrainRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights);
+    WaterRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights);
     
     sceneFBO.unbindFrameBuffer();
     

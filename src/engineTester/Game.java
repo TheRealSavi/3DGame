@@ -2,7 +2,8 @@ package engineTester;
 
 import entities.Camera;
 import entities.Entity;
-import entities.Light;
+import lights.DirectionalLight;
+import lights.PointLight;
 import guis.Gui;
 import models.Model;
 import models.RawModel;
@@ -23,23 +24,26 @@ public class Game {
   
   public static State state = State.MENU;
   
-  public static List<Light> lights = new ArrayList<>();
+  public static List<PointLight> pointLights = new ArrayList<>();
+  public static List<DirectionalLight> directionalLights = new ArrayList<>();
   public static List<Camera> cameras = new ArrayList<>();
   public static List<Entity> entities = new ArrayList<>();
   public static List<Terrain> terrains = new ArrayList<>();
   public static List<Gui> guis = new ArrayList<>();
   public static List<WaterTile> waters = new ArrayList<>();
   
+  public static float fogDensity = 0.00146f;
+  
   
   public static void loadLightsAndCamera() {
     //create lights
-    lights.add(new Light(new Vector3f(1300, 800, -1300), new Vector3f(1.0f, 1.0f, 1.0f)));
-    lights.add(new Light(new Vector3f(185, 2, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
-    lights.add(new Light(new Vector3f(370, 2, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
-    lights.add(new Light(new Vector3f(293, 2, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
+    directionalLights.add(new DirectionalLight(new Vector3f(0.4596f, 0.8151f, -0.3526f), new Vector3f(1.0f, 0.9f, 0.7f)));
+    pointLights.add(new PointLight(new Vector3f(185, 202, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
+    pointLights.add(new PointLight(new Vector3f(370, 202, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
+    pointLights.add(new PointLight(new Vector3f(293, 202, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
     
     //create camera
-    Camera camera = new Camera(90, 1, 2000);
+    Camera camera = new Camera(90, 1, 3500);
     camera.setPosition(new Vector3f(0, 100, 0));
     camera.setPitch(15);
     camera.setYaw(45);
@@ -89,7 +93,7 @@ public class Game {
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         for (int k = 0; k < 5; k++) {
-          //entities.add(new Entity(model, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
+          entities.add(new Entity(model, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
         }
       }
     }

@@ -3,6 +3,10 @@ package engineTester;
 import entities.Entity;
 import entities.EntityRenderer;
 import guis.GuiRenderer;
+import models.Model;
+import models.RawModel;
+import objConverter.OBJFileLoader;
+import org.joml.Vector3f;
 import postProcessing.PostProcessor;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
@@ -11,15 +15,14 @@ import skybox.SkyboxRenderer;
 import terrains.TerrainRenderer;
 import water.WaterRenderer;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class mainGameLoop {
   
   public static void main(String[] args) {
     
     //create window
-    DisplayManager.setSize(960, 720);
+    DisplayManager.setSize(2560, 1440);
     DisplayManager.createDisplay();
     
     //prepare terrain and skybox renderers
@@ -40,9 +43,10 @@ public class mainGameLoop {
       
       switch (Game.state) {
         case MENU:
-          
+  
           MasterRenderer.prepare();
-          SkyboxRenderer.render(Game.cameras.get(0));
+          
+          SkyboxRenderer.render(Game.cameras.get(0), Game.directionalLights.get(0));
           
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ENTER)) {
             Game.loadGameObjects();
@@ -62,6 +66,13 @@ public class mainGameLoop {
           Game.cameras.get(0).checkForUserInput();
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
             Game.terrains.get(0).regenModel();
+          }
+          
+          if(DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT)) {
+            Game.fogDensity -= 0.01 * DisplayManager.getDeltaTime();
+          }
+          if(DisplayManager.getInput().isKeyDown(GLFW_KEY_RIGHT)) {
+            Game.fogDensity += 0.01 * DisplayManager.getDeltaTime();
           }
           
           break;

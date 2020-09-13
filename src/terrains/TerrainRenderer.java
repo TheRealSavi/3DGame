@@ -1,7 +1,9 @@
 package terrains;
 
+import engineTester.Game;
 import entities.Camera;
-import entities.Light;
+import lights.DirectionalLight;
+import lights.PointLight;
 import models.RawModel;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -27,16 +29,19 @@ public class TerrainRenderer {
     shader.stop();
   }
   
-  public static void render(Camera camera, List<Light> lights) {
-    render(camera, lights, new Vector4f(0, 0, 0, 0));
+  public static void render(Camera camera, List<PointLight> pointLights, List<DirectionalLight> directionalLights) {
+    render(camera, pointLights, directionalLights, new Vector4f(0, 0, 0, 0));
   }
   
-  public static void render(Camera camera, List<Light> lights, Vector4f clippingPlane) {
+  public static void render(Camera camera, List<PointLight> pointLights, List<DirectionalLight> directionalLights, Vector4f clippingPlane) {
     shader.start();
     shader.loadClippingPlane(clippingPlane);
     shader.loadProjectionMatrix(camera.getProjectionMatrix());
-    shader.loadLights(lights);
+    shader.loadCameraPosition(camera.getPosition());
     shader.loadViewMatrix(camera);
+    shader.loadPointLights(pointLights);
+    shader.loadDirectionalLights(directionalLights);
+    shader.loadFogDensity(Game.fogDensity);
     
     for (Terrain terrain : terrains) {
       prepareModel(terrain);
@@ -87,8 +92,8 @@ public class TerrainRenderer {
   }
   
   private static void loadModelMatrix(Terrain terrain) {
-    Matrix4f transformationMatrix = Maths.createTransformationMatrix(new Vector3f(terrain.getX(), 0, terrain.getZ()), 0, 0, 0, 1);
-    shader.loadTransformationMatrix(transformationMatrix);
+    Matrix4f modelMatrix = Maths.createModelMatrix(new Vector3f(terrain.getX(), 0, terrain.getZ()), 0, 0, 0, 1);
+    shader.loadModelMatrix(modelMatrix);
   }
   
   public static void addTerrain(Terrain terrain) {

@@ -1,6 +1,8 @@
 package skybox;
 
+import engineTester.Game;
 import entities.Camera;
+import lights.DirectionalLight;
 import models.RawModel;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -71,10 +73,13 @@ public class SkyboxRenderer {
     shader.stop();
   }
   
-  public static void render(Camera camera) {
+  public static void render(Camera camera, DirectionalLight directionalLight) {
     shader.start();
     shader.loadProjectionMatrix(camera.getProjectionMatrix());
     shader.loadViewMatrix(camera);
+    shader.loadCameraPosition(camera.getPosition());
+    shader.loadDirectionalLight(directionalLight);
+    shader.loadFogDensity(Game.fogDensity);
     
     GL11.glDisable(GL11.GL_DEPTH_TEST);
     
@@ -99,6 +104,10 @@ public class SkyboxRenderer {
     GL13.glActiveTexture(GL13.GL_TEXTURE1);
     GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, nightTextureID);
     shader.loadBlendFactor(0.0f);
+  }
+  
+  public static void rotateSkybox() {
+    shader.rotateSkybox();
   }
   
   public static void cleanUp() {

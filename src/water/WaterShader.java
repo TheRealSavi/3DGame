@@ -1,7 +1,8 @@
 package water;
 
 import entities.Camera;
-import entities.Light;
+import lights.DirectionalLight;
+import lights.PointLight;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import renderEngine.ShaderProgram;
@@ -25,21 +26,21 @@ public class WaterShader extends ShaderProgram {
   private int location_moveFactor;
   private int location_cameraPosition;
   private int location_shineDamper;
+  private int location_fogDensity;
   private int location_reflectivity;
   private int location_depthMap;
   private int location_cameraNearPlane;
   private int location_cameraFarPlane;
-  private int[] location_lightPosition;
-  private int[] location_lightColor;
-  private int[] location_attenuation;
+  
+  private int[] location_pointLightPositions;
+  private int[] location_pointLightColors;
+  private int[] location_pointLightAttenuations;
+  
+  private int[] location_directionalLightDirections;
+  private int[] location_directionalLightColors;
   
   public WaterShader() {
     super(VERTEX_FILE, FRAGMENT_FILE);
-  }
-  
-  @Override
-  protected void bindAttributes() {
-    bindAttribute(0, "position");
   }
   
   @Override
@@ -50,6 +51,7 @@ public class WaterShader extends ShaderProgram {
     location_reflectionTexture = getUniformLocation("reflectionTexture");
     location_refractionTexture = getUniformLocation("refractionTexture");
     location_distortionMap = getUniformLocation("distortionMap");
+    location_fogDensity = getUniformLocation("fogDensity");
     location_moveFactor = getUniformLocation("moveFactor");
     location_cameraPosition = getUniformLocation("cameraPosition");
     location_shineDamper = super.getUniformLocation("shineDamper");
@@ -57,13 +59,54 @@ public class WaterShader extends ShaderProgram {
     location_depthMap = super.getUniformLocation("depthMap");
     location_cameraNearPlane = super.getUniformLocation("cameraNearPlane");
     location_cameraFarPlane = super.getUniformLocation("cameraFarPlane");
-    location_lightPosition = new int[MAX_LIGHTS];
-    location_lightColor = new int[MAX_LIGHTS];
-    location_attenuation = new int[MAX_LIGHTS];
+    
+    location_pointLightPositions = new int[MAX_LIGHTS];
+    location_pointLightColors = new int[MAX_LIGHTS];
+    location_pointLightAttenuations = new int[MAX_LIGHTS];
+    
     for (int i = 0; i < MAX_LIGHTS; i++) {
-      location_lightPosition[i] = super.getUniformLocation("lightPosition[" + i + "]");
-      location_lightColor[i] = super.getUniformLocation("lightColor[" + i + "]");
-      location_attenuation[i] = super.getUniformLocation("attenuation[" + i + "]");
+      location_pointLightPositions[i] = super.getUniformLocation("pointLightPositions[" + i + "]");
+      location_pointLightColors[i] = super.getUniformLocation("pointLightColors[" + i + "]");
+      location_pointLightAttenuations[i] = super.getUniformLocation("pointLightAttenuations[" + i + "]");
+    }
+  
+    location_directionalLightDirections = new int[MAX_LIGHTS];
+    location_directionalLightColors = new int[MAX_LIGHTS];
+  
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+      location_directionalLightDirections[i] = super.getUniformLocation("directionalLightDirections[" + i + "]");
+      location_directionalLightColors[i] = super.getUniformLocation("directionalLightColors[" + i + "]");
+    }
+  }
+  
+  @Override
+  protected void bindAttributes() {
+    bindAttribute(0, "position");
+  }
+  
+  public void loadPointLights(List<PointLight> pointLights) {
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+      if (i < pointLights.size()) {
+        super.loadVector(location_pointLightPositions[i], pointLights.get(i).getPosition());
+        super.loadVector(location_pointLightColors[i], pointLights.get(i).getColor());
+        super.loadVector(location_pointLightAttenuations[i], pointLights.get(i).getAttenuation());
+      } else {
+        super.loadVector(location_pointLightPositions[i], new Vector3f(0, 0, 0));
+        super.loadVector(location_pointLightColors[i], new Vector3f(0, 0, 0));
+        super.loadVector(location_pointLightAttenuations[i], new Vector3f(1, 0, 0));
+      }
+    }
+  }
+  
+  public void loadDirectionalLights(List<DirectionalLight> directionalLights) {
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+      if (i < directionalLights.size()) {
+        super.loadVector(location_directionalLightDirections[i], directionalLights.get(i).getDirection());
+        super.loadVector(location_directionalLightColors[i], directionalLights.get(i).getColor());
+      } else {
+        super.loadVector(location_directionalLightDirections[i], new Vector3f(0, 0, 0));
+        super.loadVector(location_directionalLightColors[i], new Vector3f(0, 0, 0));
+      }
     }
   }
   
@@ -72,18 +115,8 @@ public class WaterShader extends ShaderProgram {
     super.loadFloat(location_reflectivity, reflectivity);
   }
   
-  public void loadLights(List<Light> lights) {
-    for (int i = 0; i < MAX_LIGHTS; i++) {
-      if (i < lights.size()) {
-        super.loadVector(location_lightPosition[i], lights.get(i).getPosition());
-        super.loadVector(location_lightColor[i], lights.get(i).getColor());
-        super.loadVector(location_attenuation[i], lights.get(i).getAttenuation());
-      } else {
-        super.loadVector(location_lightPosition[i], new Vector3f(0, 0, 0));
-        super.loadVector(location_lightColor[i], new Vector3f(0, 0, 0));
-        super.loadVector(location_attenuation[i], new Vector3f(1, 0, 0));
-      }
-    }
+  public void loadFogDensity(float fogDensity) {
+    super.loadFloat(location_fogDensity, fogDensity);
   }
   
   public void loadCameraPosition(Vector3f cameraPosition) {
@@ -113,8 +146,8 @@ public class WaterShader extends ShaderProgram {
     super.loadFloat(location_cameraFarPlane, camera.getFAR_PLANE());
   }
   
-  public void loadModelMatrix(Matrix4f modelMatrix) {
-    super.loadMatrix(location_modelMatrix, modelMatrix);
+  public void loadModelMatrix(Matrix4f matrix) {
+    super.loadMatrix(location_modelMatrix, matrix);
   }
   
 }

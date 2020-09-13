@@ -32,7 +32,7 @@ public class Maths {
     return matrix;
   }
   
-  public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, float scale) {
+  public static Matrix4f createModelMatrix(Vector3f translation, float rx, float ry, float rz, float scale) {
     Matrix4f matrix = new Matrix4f();
     //matrix.setIdentity;
     matrix.translate(translation);

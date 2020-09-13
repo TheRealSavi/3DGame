@@ -1,22 +1,38 @@
 #version 400 core
 
 in vec2 pass_coords;
+in vec3 pass_cameraPosition;
 in vec3 surfaceNormal;
-in vec3 toLightVector[4];
 in vec3 toCameraVector;
-in float visibility;
+in float distanceFromCamera;
+
+in vec3 toPointLightVectors[4];
 
 out vec4 out_color;
 
-uniform sampler2D sampler;
-
-uniform vec3 lightColor[4];
-uniform vec3 attenuation[4];
-
 uniform float shineDamper;
 uniform float reflectivity;
+uniform float fogDensity;
 
-//uniform vec3 skyColor;
+uniform vec3 pointLightColors[4];
+uniform vec3 pointLightAttenuations[4];
+
+uniform vec3 directionalLightDirections[4];
+uniform vec3 directionalLightColors[4];
+
+uniform sampler2D sampler;
+
+vec3 applyFog(vec3 rgb, float distance, vec3 rayDir, vec3 rayPos, vec3 sunDir) {
+
+    float fogAmmount = (0.0015625 / fogDensity) * exp(-rayPos.y * fogDensity) * (1.0 - exp(-distance * rayDir.y * fogDensity)) / rayDir.y;
+    fogAmmount = clamp(fogAmmount, 0.0, 1.0);
+
+    float sunAmmount =  max( dot(rayDir, sunDir), 0.0);
+    vec3 fogColor = mix( vec3(0.5, 0.5, 0.7), vec3(1.0, 0.9, 0.7), sunAmmount);
+
+    return mix(rgb, fogColor, fogAmmount);
+
+}
 
 void main(void) {
 
@@ -26,14 +42,16 @@ void main(void) {
     vec3 totalDiffusedLighting = vec3(0.0);
     vec3 totalSpecularLighting = vec3(0.0);
 
+    //point light diffused and specular lighting calculations
     for (int i=0;i<4;i++) {
-        float distanceToLight = length(toLightVector[i]);
-        float attenuationFactor = attenuation[i].x + (attenuation[i].y * distanceToLight) + (attenuation[i].z * distanceToLight * distanceToLight);
+        float distanceToLight = length(toPointLightVectors[i]);
+        float attenuationFactor = pointLightAttenuations[i].x + (pointLightAttenuations[i].y * distanceToLight) + (pointLightAttenuations[i].z * distanceToLight * distanceToLight);
 
-        vec3 unitLightVector = normalize(toLightVector[i]);
-        float nDot1 = dot(unitNormal, unitLightVector);
-        float brightness = max(nDot1, 0.0);
-        vec3 diffusedLight = (brightness * lightColor[i]) / attenuationFactor;
+        vec3 unitLightVector = normalize(toPointLightVectors[i]);
+        float normalDot1 = dot(unitNormal, unitLightVector);
+        float brightness = max(normalDot1, 0.0);
+
+        vec3 diffusedLight = (brightness * pointLightColors[i]) / attenuationFactor;
         totalDiffusedLighting = totalDiffusedLighting + diffusedLight;
 
         vec3 lightDirection = -unitLightVector;
@@ -41,9 +59,27 @@ void main(void) {
         float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
         float specularLight = max(specularFactor, 0.0);
         float dampedSpecularLight = pow(specularLight, shineDamper);
-        vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * lightColor[i]) / attenuationFactor;
+        vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * pointLightColors[i]) / attenuationFactor;
         totalSpecularLighting = totalSpecularLighting + finalSpecularLight;
     }
+
+    //directional light diffused and specular lighting calculations
+    for (int i=0;i<4;i++) {
+        vec3 unitLightDirection = normalize(directionalLightDirections[i]);
+        float normalDot1 = dot(unitNormal, unitLightDirection);
+        float brightness = max(normalDot1, 0.0);
+
+        vec3 diffusedLight = (brightness * directionalLightColors[i]);
+        totalDiffusedLighting = totalDiffusedLighting + diffusedLight;
+
+        vec3 reflectedLightDirection = reflect(-unitLightDirection, unitNormal);
+        float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+        float specularLight = max(specularFactor, 0.0);
+        float dampedSpecularLight = pow(specularLight, shineDamper);
+        vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * directionalLightColors[i]);
+        totalSpecularLighting = totalSpecularLighting + finalSpecularLight;
+    }
+
     totalDiffusedLighting = max(totalDiffusedLighting, 0.2);
 
     vec4 textureColor = texture(sampler, pass_coords);
@@ -51,7 +87,7 @@ void main(void) {
         discard;
     }
 
-    vec4 lightedTexture = vec4(totalDiffusedLighting, 1.0) * textureColor + vec4(totalSpecularLighting, 1.0);
-    //out_color = mix(vec4(skyColor, 1.0), lightedTexture, visibility);
-    out_color = lightedTexture;
+    vec4 lightedTextureColor = vec4(totalDiffusedLighting, 1.0) * textureColor + vec4(totalSpecularLighting, 1.0);
+
+    out_color = vec4(applyFog(lightedTextureColor.rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(directionalLightDirections[0]) ), 1.0);
 }
