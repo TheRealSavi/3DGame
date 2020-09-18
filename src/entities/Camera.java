@@ -15,7 +15,9 @@ public class Camera {
   private float roll = 0;
   private float currentSpeed = 0;
   
-  private static final float MAX_SPEED = 95;
+  private static final float WALK_SPEED = 95;
+  private static final float RUN_MODIFIER = 2.0f;
+  
   private static final float MAX_PITCH = 87;
   private static final float SENSITIVITY = 0.3f;
   
@@ -40,29 +42,34 @@ public class Camera {
     Vector3f travel = new Vector3f(0, 0, 0);
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_W)) {
       travel.add(new Vector3f(1, 0, 0));
-      currentSpeed = MAX_SPEED;
+      currentSpeed = WALK_SPEED;
     }
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_S)) {
       travel.add(new Vector3f(-1, 0, 0));
-      currentSpeed = MAX_SPEED;
+      currentSpeed = WALK_SPEED;
     }
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_D)) {
       travel.add(new Vector3f(0, 0, 1));
-      currentSpeed = MAX_SPEED;
+      currentSpeed = WALK_SPEED;
     }
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_A)) {
       travel.add(new Vector3f(0, 0, -1));
-      currentSpeed = MAX_SPEED;
+      currentSpeed = WALK_SPEED;
     }
     
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_SPACE)) {
       travel.add(new Vector3f(0, 1, 0));
-      currentSpeed = MAX_SPEED;
+      currentSpeed = WALK_SPEED;
     }
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
       travel.add(new Vector3f(0, -1, 0));
-      currentSpeed = MAX_SPEED;
+      currentSpeed = WALK_SPEED;
     }
+  
+    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+      currentSpeed *= RUN_MODIFIER;
+    }
+    
     
     if (travel.length() != 0) {
       calculateMovement(travel);
