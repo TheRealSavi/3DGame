@@ -1,10 +1,9 @@
 #version 400 core
 
-in vec2 pass_coords;
-in vec3 pass_cameraPosition;
 in vec3 surfaceNormal;
-in vec3 toCameraVector;
-in float distanceFromCamera;
+in vec2 pass_coords;
+in vec3 cameraRayVector;
+in vec3 pass_cameraPosition;
 
 in vec3 toPointLightVectors[4];
 
@@ -35,28 +34,31 @@ vec3 applyFog(vec3 rgb, float distance, vec3 rayDir, vec3 rayPos, vec3 sunDir) {
 }
 
 void main(void) {
+    float distanceFromCamera = length(cameraRayVector);
 
-    vec3 unitNormal = normalize(surfaceNormal);
-    vec3 unitVectorToCamera = normalize(toCameraVector);
+    vec3 normal = normalize(surfaceNormal);
 
     vec3 totalDiffusedLighting = vec3(0.0);
     vec3 totalSpecularLighting = vec3(0.0);
+    vec3 cameraRayDirection = normalize(cameraRayVector);
 
     //point light diffused and specular lighting calculations
     for (int i=0;i<4;i++) {
         float distanceToLight = length(toPointLightVectors[i]);
         float attenuationFactor = pointLightAttenuations[i].x + (pointLightAttenuations[i].y * distanceToLight) + (pointLightAttenuations[i].z * distanceToLight * distanceToLight);
 
-        vec3 unitLightVector = normalize(toPointLightVectors[i]);
-        float normalDot1 = dot(unitNormal, unitLightVector);
+        vec3 rayToPointLight = normalize(toPointLightVectors[i]);
+        vec3 rayFromPointLight = -rayToPointLight;
+
+        float normalDot1 = dot(normal, rayFromPointLight);
         float brightness = max(normalDot1, 0.0);
 
         vec3 diffusedLight = (brightness * pointLightColors[i]) / attenuationFactor;
         totalDiffusedLighting = totalDiffusedLighting + diffusedLight;
 
-        vec3 lightDirection = -unitLightVector;
-        vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
-        float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+        vec3 reflectedLightDirection = reflect(rayFromPointLight, normal);
+
+        float specularFactor = dot(reflectedLightDirection, cameraRayDirection);
         float specularLight = max(specularFactor, 0.0);
         float dampedSpecularLight = pow(specularLight, shineDamper);
         vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * pointLightColors[i]) / attenuationFactor;
@@ -65,15 +67,18 @@ void main(void) {
 
     //directional light diffused and specular lighting calculations
     for (int i=0;i<4;i++) {
-        vec3 unitLightDirection = normalize(directionalLightDirections[i]);
-        float normalDot1 = dot(unitNormal, unitLightDirection);
+        vec3 rayFromLight = normalize(directionalLightDirections[i]);
+        vec3 rayToLight = -rayFromLight;
+
+        float normalDot1 = dot(normal, rayFromLight);
         float brightness = max(normalDot1, 0.0);
 
         vec3 diffusedLight = (brightness * directionalLightColors[i]);
         totalDiffusedLighting = totalDiffusedLighting + diffusedLight;
 
-        vec3 reflectedLightDirection = reflect(-unitLightDirection, unitNormal);
-        float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+        vec3 reflectedLightDirection = reflect(rayFromLight, normal);
+
+        float specularFactor = dot(reflectedLightDirection, cameraRayDirection);
         float specularLight = max(specularFactor, 0.0);
         float dampedSpecularLight = pow(specularLight, shineDamper);
         vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * directionalLightColors[i]);
@@ -81,6 +86,7 @@ void main(void) {
     }
 
     totalDiffusedLighting = max(totalDiffusedLighting, 0.2);
+    totalSpecularLighting = max(totalSpecularLighting, 0.0);
 
     vec4 textureColor = texture(sampler, pass_coords);
     if (textureColor.a < 0.5) {
@@ -89,5 +95,5 @@ void main(void) {
 
     vec4 lightedTextureColor = vec4(totalDiffusedLighting, 1.0) * textureColor + vec4(totalSpecularLighting, 1.0);
 
-    out_color = vec4(applyFog(lightedTextureColor.rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(directionalLightDirections[0]) ), 1.0);
+    out_color = vec4(applyFog(lightedTextureColor.rgb, distanceFromCamera, cameraRayDirection, pass_cameraPosition, normalize(directionalLightDirections[0]) ), 1.0);
 }

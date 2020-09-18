@@ -2,16 +2,26 @@
 
 in vec3 position;
 
-out vec3 textureCoords;
-out vec3 toCameraVector;
-out vec3 pass_cameraPosition;
-out float distanceFromCamera;
 
-uniform vec3 cameraPosition;
+
+
+out vec3 textureCoords;
+out vec3 cameraRayVector;
+out vec3 pass_cameraPosition;
+
+
+
+
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform vec3 cameraPosition;
+
+
+
+
 
 void main(void) {
+
     vec4 localSpace = vec4(position, 1.0);
     vec4 worldSpace = localSpace;
     vec4 cameraSpace = viewMatrix * worldSpace;
@@ -19,9 +29,9 @@ void main(void) {
 
     gl_Position = clipSpace;
 
-    toCameraVector = cameraPosition - worldSpace.xyz;
-    distanceFromCamera = length(cameraSpace.xyz);
+    cameraRayVector = worldSpace.xyz - cameraPosition;
+
+    pass_cameraPosition = cameraPosition;
 
     textureCoords = position;
-    pass_cameraPosition = cameraPosition;
 }

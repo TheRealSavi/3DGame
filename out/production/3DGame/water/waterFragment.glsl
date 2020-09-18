@@ -2,8 +2,7 @@
 
 in vec4 clipSpace;
 in vec2 textureCoords;
-in vec3 toCameraVector;
-in float distanceFromCamera;
+in vec3 cameraRayVector;
 in vec3 pass_cameraPosition;
 
 in vec3 toPointLightVectors[4];
@@ -45,6 +44,7 @@ vec3 applyFog(vec3 rgb, float distance, vec3 rayDir, vec3 rayPos, vec3 sunDir) {
 }
 
 void main(void) {
+    float distanceFromCamera = length(cameraRayVector);
 
     vec2 normalizedDeviceSpace = (clipSpace.xy / clipSpace.w);
 
@@ -62,27 +62,28 @@ void main(void) {
     vec2 totalDistortion = (distortion1 + distortion2) * clamp(waterDepth / 10.0, 0.0, 1.0);
 
     vec3 normal = normalize(vec3(totalDistortion.x, totalDistortion.y * 5.6, distortion1.x));
-    vec3 unitNormal = normalize(normal);
 
     vec3 totalDiffusedLighting = vec3(0.0);
     vec3 totalSpecularLighting = vec3(0.0);
-    vec3 unitVectorToCamera = normalize(toCameraVector);
+    vec3 cameraRayDirection = normalize(cameraRayVector);
 
     //point light diffused and specular lighting calculations
     for (int i=0;i<4;i++) {
         float distanceToLight = length(toPointLightVectors[i]);
         float attenuationFactor = pointLightAttenuations[i].x + (pointLightAttenuations[i].y * distanceToLight) + (pointLightAttenuations[i].z * distanceToLight * distanceToLight);
 
-        vec3 unitLightVector = normalize(toPointLightVectors[i]);
-        float normalDot1 = dot(unitNormal, unitLightVector);
+        vec3 rayToPointLight = normalize(toPointLightVectors[i]);
+        vec3 rayFromPointLight = -rayToPointLight;
+
+        float normalDot1 = dot(normal, rayFromPointLight);
         float brightness = max(normalDot1, 0.0);
 
         vec3 diffusedLight = (brightness * pointLightColors[i]) / attenuationFactor;
         totalDiffusedLighting = totalDiffusedLighting + diffusedLight;
 
-        vec3 lightDirection = -unitLightVector;
-        vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
-        float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+        vec3 reflectedLightDirection = reflect(rayFromPointLight, normal);
+
+        float specularFactor = dot(reflectedLightDirection, cameraRayDirection);
         float specularLight = max(specularFactor, 0.0);
         float dampedSpecularLight = pow(specularLight, shineDamper);
         vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * pointLightColors[i]) / attenuationFactor;
@@ -91,15 +92,18 @@ void main(void) {
 
     //directional light diffused and specular lighting calculations
     for (int i=0;i<4;i++) {
-        vec3 unitLightDirection = normalize(directionalLightDirections[i]);
-        float normalDot1 = dot(unitNormal, unitLightDirection);
+        vec3 rayFromLight = normalize(directionalLightDirections[i]);
+        vec3 rayToLight = -rayFromLight;
+
+        float normalDot1 = dot(normal, rayFromLight);
         float brightness = max(normalDot1, 0.0);
 
         vec3 diffusedLight = (brightness * directionalLightColors[i]);
         totalDiffusedLighting = totalDiffusedLighting + diffusedLight;
 
-        vec3 reflectedLightDirection = reflect(-unitLightDirection, unitNormal);
-        float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+        vec3 reflectedLightDirection = reflect(rayFromLight, normal);
+
+        float specularFactor = dot(reflectedLightDirection, cameraRayDirection);
         float specularLight = max(specularFactor, 0.0);
         float dampedSpecularLight = pow(specularLight, shineDamper);
         vec3 finalSpecularLight = (dampedSpecularLight * reflectivity * directionalLightColors[i]);
@@ -123,21 +127,19 @@ void main(void) {
     vec4 reflectColor = texture(reflectionTexture, screenSpaceUpsideDown);
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
 
-    vec4 fogAdjustedRefractTexture = vec4(applyFog(refractColor.rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(vec3(directionalLightDirections[0])) ), 1.0);
-    vec4 fogAdjustedReflectTexture = vec4(applyFog(reflectColor.rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(vec3(directionalLightDirections[0])) ), 1.0);
-
-    vec3 directionToCamera = normalize(toCameraVector);
-    float refractiveFactor = dot(directionToCamera, normal);
+    float refractiveFactor = dot(cameraRayDirection, normal);
     refractiveFactor = pow(refractiveFactor, 3);
 
-    vec4 fogAdjustedWaterColor = vec4(applyFog(vec4(0.0, 0.3, 0.5, 1.0).rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(vec3(directionalLightDirections[0])) ), 1.0);
-    vec4 fogAdjustedDeepWaterColor = vec4(applyFog(vec4(0.2, 0.4, 0.55, 1.0).rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(vec3(directionalLightDirections[0])) ), 1.0);
-
     vec4 waterTexture = mix(refractColor, reflectColor, refractiveFactor);
-    vec4 lightedTexture = vec4(totalDiffusedLighting, 1.0) * mix(waterTexture, fogAdjustedWaterColor, 0.12) + vec4(totalSpecularLighting, 0.0);
-    vec4 depthAdjustedColorTexture = mix(lightedTexture, fogAdjustedDeepWaterColor, clamp(waterDepth / 80.0, 0.0, 0.3));
+
+    vec4 lightedTexture = vec4(totalDiffusedLighting, 1.0) * mix(waterTexture, vec4(0.0, 0.3, 0.5, 1.0), 0.12) + vec4(totalSpecularLighting, 0.0);
+
+    vec4 depthAdjustedColorTexture = mix(lightedTexture, vec4(0.2, 0.4, 0.55, 1.0), clamp(waterDepth / 80.0, 0.0, 0.3));
+
+    vec4 foggyWater = vec4(applyFog(depthAdjustedColorTexture.rgb, distanceFromCamera, cameraRayDirection, pass_cameraPosition, normalize(directionalLightDirections[0]) ), 1.0);
 
     float alpha = clamp(waterDepth / 5, 0.2, 1.0);
 
-    out_color = vec4(depthAdjustedColorTexture.rgb, alpha);
+    out_color = vec4(foggyWater.rgb, alpha);
+
 }
