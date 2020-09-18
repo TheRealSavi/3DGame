@@ -3,10 +3,6 @@ package engineTester;
 import entities.Entity;
 import entities.EntityRenderer;
 import guis.GuiRenderer;
-import models.Model;
-import models.RawModel;
-import objConverter.OBJFileLoader;
-import org.joml.Vector3f;
 import postProcessing.PostProcessor;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
@@ -70,9 +66,11 @@ public class mainGameLoop {
           
           if(DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT)) {
             Game.fogDensity -= 0.01 * DisplayManager.getDeltaTime();
+            System.out.println(Game.fogDensity);
           }
           if(DisplayManager.getInput().isKeyDown(GLFW_KEY_RIGHT)) {
             Game.fogDensity += 0.01 * DisplayManager.getDeltaTime();
+            System.out.println(Game.fogDensity);
           }
           
           break;

@@ -2,10 +2,11 @@
 
 in vec2 position;
 
+
+
 out vec4 clipSpace;
 out vec2 textureCoords;
-out vec3 toCameraVector;
-out float distanceFromCamera;
+out vec3 cameraRayVector;
 out vec3 pass_cameraPosition;
 
 out vec3 toPointLightVectors[4];
@@ -26,15 +27,13 @@ void main(void) {
     vec4 cameraSpace = viewMatrix * worldSpace;
     clipSpace = projectionMatrix * cameraSpace;
 
-    distanceFromCamera = length(cameraSpace.xyz);
-
     gl_Position = clipSpace;
+
+    cameraRayVector = worldSpace.xyz - cameraPosition;
 
     pass_cameraPosition = cameraPosition;
 
     textureCoords = vec2(position.x / 2.0 + 0.5, position.y / 2.0 + 0.5) * tilingFactor;
-
-    toCameraVector = cameraPosition - worldSpace.xyz;
 
     for (int i=0;i<4;i++) {
         toPointLightVectors[i] = pointLightPositions[i] - worldSpace.xyz;

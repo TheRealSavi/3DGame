@@ -4,11 +4,10 @@ in vec3 position;
 in vec2 textureCoords;
 in vec3 normal;
 
-out vec2 pass_coords;
-out vec3 pass_cameraPosition;
 out vec3 surfaceNormal;
-out vec3 toCameraVector;
-out float distanceFromCamera;
+out vec2 pass_coords;
+out vec3 cameraRayVector;
+out vec3 pass_cameraPosition;
 
 out vec3 toPointLightVectors[4];
 
@@ -17,9 +16,9 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 cameraPosition;
 
-uniform vec4 clippingPlane;
-
 uniform vec3 pointLightPositions[4];
+
+uniform vec4 clippingPlane;
 
 uniform float useFakeLighting;
 
@@ -30,15 +29,17 @@ void main(void) {
     vec4 cameraSpace = viewMatrix * worldSpace;
     vec4 clipSpace = projectionMatrix * cameraSpace;
 
-    distanceFromCamera = length(cameraSpace.xyz);
-    toCameraVector = cameraPosition - worldSpace.xyz;
-
-    gl_ClipDistance[0] = dot(worldSpace, clippingPlane);
-
     gl_Position = clipSpace;
 
-    pass_coords = textureCoords;
+    cameraRayVector = worldSpace.xyz - cameraPosition;
+
     pass_cameraPosition = cameraPosition;
+
+    pass_coords = textureCoords;
+
+    for (int i=0;i<4;i++) {
+        toPointLightVectors[i] = pointLightPositions[i] - worldSpace.xyz;
+    }
 
     vec3 actualNormal = normal;
     if (useFakeLighting > 0.5) {
@@ -46,8 +47,5 @@ void main(void) {
     }
     surfaceNormal = (modelMatrix * vec4(actualNormal, 0.0)).xyz;
 
-    for (int i=0;i<4;i++) {
-        toPointLightVectors[i] = pointLightPositions[i] - worldSpace.xyz;
-    }
-
+    gl_ClipDistance[0] = dot(worldSpace, clippingPlane);
 }

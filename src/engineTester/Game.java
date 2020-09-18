@@ -32,7 +32,9 @@ public class Game {
   public static List<Gui> guis = new ArrayList<>();
   public static List<WaterTile> waters = new ArrayList<>();
   
-  public static float fogDensity = 0.00146f;
+ // public static float fogDensity = 0.01146f;
+  public static float fogDensity = 0.005060278f;
+  
   
   
   public static void loadLightsAndCamera() {
@@ -62,7 +64,7 @@ public class Game {
     fernModel.setTransparency(true);
     fernModel.setUseFakeLighting(false);
     
-    entities.add(new Entity(fernModel, new Vector3f(400, 400, -390), 0, 0, 0, 2.0f));
+    //entities.add(new Entity(fernModel, new Vector3f(400, 400, -390), 0, 0, 0, 2.0f));
     
     //create terrain
     int backgroundTextureID = Loader.loadTexture("grass");

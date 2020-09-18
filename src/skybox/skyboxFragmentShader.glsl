@@ -1,17 +1,21 @@
 #version 400 core
 
+
 in vec3 textureCoords;
-in vec3 toCameraVector;
+in vec3 cameraRayVector;
 in vec3 pass_cameraPosition;
-in float distanceFromCamera;
+
+
+
 out vec4 out_color;
+
+uniform float fogDensity;
+
+uniform vec3 directionalLightDirection;
 
 uniform samplerCube cubeMap;
 uniform samplerCube cubeMap2;
 uniform float blendFactor;
-
-uniform vec3 directionalLightDirection;
-uniform float fogDensity;
 
 vec3 applyFog(vec3 rgb, float distance, vec3 rayDir, vec3 rayPos, vec3 sunDir) {
 
@@ -26,9 +30,12 @@ vec3 applyFog(vec3 rgb, float distance, vec3 rayDir, vec3 rayPos, vec3 sunDir) {
 }
 
 void main(void) {
+    float distanceFromCamera = length(cameraRayVector);
+    vec3 cameraRayDirection = normalize(cameraRayVector);
+
     vec4 texture1 = texture(cubeMap, textureCoords);
     vec4 texture2 = texture(cubeMap2, textureCoords);
     vec4 finalColor = mix(texture1, texture2, blendFactor);
 
-    out_color = vec4(applyFog(finalColor.rgb, distanceFromCamera, normalize(-toCameraVector), pass_cameraPosition, normalize(directionalLightDirection) ), 1.0);
+    out_color = vec4(applyFog(finalColor.rgb, distanceFromCamera, cameraRayDirection, pass_cameraPosition, normalize(directionalLightDirection) ), 1.0);
 }
