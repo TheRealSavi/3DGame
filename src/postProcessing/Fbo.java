@@ -17,6 +17,12 @@ public class Fbo {
   private final int width;
   private final int height;
   
+  private final int viewportWidth;
+  private final int viewportHeight;
+  
+  private final int viewportX;
+  private final int viewportY;
+  
   private int frameBuffer;
   
   private int colorTexture;
@@ -38,6 +44,20 @@ public class Fbo {
   public Fbo(int width, int height, int depthBufferType) {
     this.width = width;
     this.height = height;
+    this.viewportWidth = width;
+    this.viewportHeight = height;
+    this.viewportX = 0;
+    this.viewportY = 0;
+    initialiseFrameBuffer(depthBufferType);
+  }
+  
+  public Fbo(int width, int height, int viewportWidth, int viewportHeight, int viewportX, int viewportY, int depthBufferType) {
+    this.width = width;
+    this.height = height;
+    this.viewportWidth = viewportWidth;
+    this.viewportHeight = viewportHeight;
+    this.viewportX = viewportX;
+    this.viewportY = viewportY;
     initialiseFrameBuffer(depthBufferType);
   }
   
@@ -115,7 +135,8 @@ public class Fbo {
    */
   public void bindFrameBuffer() {
     GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, frameBuffer);
-    GL11.glViewport(0, 0, width, height);
+    
+    GL11.glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
   }
   
   /**
@@ -125,6 +146,7 @@ public class Fbo {
    */
   public void unbindFrameBuffer() {
     GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+    
     int[] size = DisplayManager.getFrameBufferSize();
     GL11.glViewport(0, 0, size[0], size[1]);
   }

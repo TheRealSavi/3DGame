@@ -62,7 +62,7 @@ public class EntityShader extends ShaderProgram {
       location_pointLightColors[i] = super.getUniformLocation("pointLightColors[" + i + "]");
       location_pointLightAttenuations[i] = super.getUniformLocation("pointLightAttenuations[" + i + "]");
     }
-  
+    
     location_directionalLightDirections = new int[MAX_LIGHTS];
     location_directionalLightColors = new int[MAX_LIGHTS];
     

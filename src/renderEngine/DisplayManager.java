@@ -22,7 +22,7 @@ public class DisplayManager {
   private static double lastFrameTime;
   private static double deltaTime;
   
-  private static int lastFPSChars;
+  private static int lastFPSChars = 0;
   
   private static Vector2f lastFrameCursorPos = new Vector2f(0, 0);
   private static Vector2f deltaCursorPos = new Vector2f(0, 0);
@@ -87,8 +87,10 @@ public class DisplayManager {
     glfwSetInputMode(windowReference, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported()) {
       glfwSetInputMode(windowReference, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+      DisplayManager.removeFPSLog();
       System.out.println("Raw Input is enabled!");
     } else {
+      DisplayManager.removeFPSLog();
       System.out.println("Raw Input not enabled!");
     }
   }
@@ -138,11 +140,15 @@ public class DisplayManager {
   }
   
   public static void logFPS() {
+    removeFPSLog();
+    System.out.print("FPS : " + DisplayManager.getCurrentFPS());
+    lastFPSChars = Float.toString(DisplayManager.getCurrentFPS()).length();
+  }
+  
+  public static void removeFPSLog() {
     for (int i = 0; i < lastFPSChars + 6; i++) {
       System.out.print("\b");
     }
-    System.out.print("FPS : " + DisplayManager.getCurrentFPS());
-    lastFPSChars = Float.toString(DisplayManager.getCurrentFPS()).length();
   }
   
   public static double getDeltaTime() {

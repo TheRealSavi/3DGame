@@ -2,27 +2,30 @@ package postProcessing;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import renderEngine.DisplayManager;
 
 public class ContrastEffect {
   
-  private ImageRenderer renderer;
-  private ContrastShader shader;
+  private final ContrastShader shader;
+  private final Fbo fbo;
   
   public ContrastEffect() {
     shader = new ContrastShader();
-    renderer = new ImageRenderer();
+    int[] size = DisplayManager.getFrameBufferSize();
+    fbo = new Fbo(size[0], size[1], size[0], size[1], 0, 0, Fbo.NONE);
   }
   
-  public void render(int texturedID) {
+  public Fbo render(int texturedID) {
     shader.start();
     GL13.glActiveTexture(GL13.GL_TEXTURE0);
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturedID);
-    renderer.renderQuad();
+    ImageRenderer.renderToFBO(fbo);
     shader.stop();
+    return fbo;
   }
   
   public void cleanUp() {
-    renderer.cleanUp();
     shader.cleanUp();
+    fbo.cleanUp();
   }
 }

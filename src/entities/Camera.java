@@ -2,10 +2,10 @@ package entities;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import postProcessing.Fbo;
+import postProcessing.PostProcessor;
 import renderEngine.DisplayManager;
 import toolBox.Maths;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
   
@@ -13,13 +13,6 @@ public class Camera {
   private float pitch = 0;
   private float yaw = 0;
   private float roll = 0;
-  private float currentSpeed = 0;
-  
-  private static final float WALK_SPEED = 95;
-  private static final float RUN_MODIFIER = 2.0f;
-  
-  private static final float MAX_PITCH = 87;
-  private static final float SENSITIVITY = 0.3f;
   
   private float FOV;
   private float NEAR_PLANE;
@@ -27,75 +20,61 @@ public class Camera {
   
   private Matrix4f projectionMatrix;
   
+  private Fbo fbo;
+  
   public Camera(float FOV, float NEAR_PLANE, float FAR_PLANE) {
     this.FOV = FOV;
     this.NEAR_PLANE = NEAR_PLANE;
     this.FAR_PLANE = FAR_PLANE;
     this.projectionMatrix = Maths.createProjectionMatrix(FOV, NEAR_PLANE, FAR_PLANE);
+    
+    int[] size = DisplayManager.getFrameBufferSize();
+    this.fbo = new Fbo(size[0], size[1], size[0], size[1], 0, 0, Fbo.DEPTH_RENDER_BUFFER);
   }
   
-  public void checkForUserInput() {
-    pitch += (DisplayManager.getDeltaCursor().y * SENSITIVITY);
-    pitch = Float.min(Float.max(pitch, -MAX_PITCH), MAX_PITCH);
-    yaw += (DisplayManager.getDeltaCursor().x * SENSITIVITY);
-    
-    Vector3f travel = new Vector3f(0, 0, 0);
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_W)) {
-      travel.add(new Vector3f(1, 0, 0));
-      currentSpeed = WALK_SPEED;
-    }
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_S)) {
-      travel.add(new Vector3f(-1, 0, 0));
-      currentSpeed = WALK_SPEED;
-    }
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_D)) {
-      travel.add(new Vector3f(0, 0, 1));
-      currentSpeed = WALK_SPEED;
-    }
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_A)) {
-      travel.add(new Vector3f(0, 0, -1));
-      currentSpeed = WALK_SPEED;
-    }
-    
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_SPACE)) {
-      travel.add(new Vector3f(0, 1, 0));
-      currentSpeed = WALK_SPEED;
-    }
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
-      travel.add(new Vector3f(0, -1, 0));
-      currentSpeed = WALK_SPEED;
-    }
-  
-    if (DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-      currentSpeed *= RUN_MODIFIER;
-    }
-    
-    
-    if (travel.length() != 0) {
-      calculateMovement(travel);
-    }
+  public void setFBO(Fbo _fbo) {
+    fbo.cleanUp();
+    this.fbo = _fbo;
   }
   
-  private void calculateMovement(Vector3f travel) {
-    float speed = currentSpeed * (float)DisplayManager.getDeltaTime();
-    
-    Vector3f forward = new Vector3f();
-    forward.x = (float)(speed * Math.sin(Math.toRadians(yaw)));
-    forward.z = (float)(speed * Math.cos(Math.toRadians(yaw)));
-    
-    Vector3f horizontal = new Vector3f();
-    horizontal.x = (float)(speed * Math.sin(Math.toRadians(yaw + 90)));
-    horizontal.z = (float)(speed * Math.cos(Math.toRadians(yaw + 90)));
-    
-    Vector3f deltaPos = new Vector3f(0, 0, 0);
-    deltaPos.x = (forward.x * travel.x) + (horizontal.x * travel.z);
-    deltaPos.z = -((forward.z * travel.x) + (horizontal.z * travel.z));
-    deltaPos.y = (speed * travel.y);
-    deltaPos.normalize(speed, deltaPos);
-    
-    position.add(deltaPos);
-    
-    currentSpeed = 0;
+  public Fbo swapFBO(Fbo _fbo) {
+    Fbo oldFbo = this.fbo;
+    this.fbo = _fbo;
+    return oldFbo;
+  }
+  
+  public void swapBackFBO(Fbo _fbo) {
+    this.fbo = _fbo;
+  }
+  
+  public void bindFBO() {
+    this.fbo.bindFrameBuffer();
+  }
+  
+  public void unbindFBO() {
+    this.fbo.unbindFrameBuffer();
+  }
+  
+  public void doPostProcessing() {
+    PostProcessor.doPostProcessing(fbo.getColorTexture());
+  }
+  
+  public Vector3f getPosition() {
+    return position;
+  }
+  
+  public void setPosition(Vector3f newPos) {
+    this.position = newPos;
+  }
+  
+  public void increasePosition(float dx, float dy, float dz) {
+    this.position.x += dx;
+    this.position.y += dy;
+    this.position.z += dz;
+  }
+  
+  public void increasePosition(Vector3f dPos) {
+    this.position.add(dPos);
   }
   
   public Matrix4f getProjectionMatrix() {
@@ -117,14 +96,6 @@ public class Camera {
   
   public float getFAR_PLANE() {
     return FAR_PLANE;
-  }
-  
-  public void setPosition(Vector3f newPos) {
-    this.position = newPos;
-  }
-  
-  public Vector3f getPosition() {
-    return position;
   }
   
   public float getPitch() {
@@ -151,4 +122,13 @@ public class Camera {
     this.roll = roll;
   }
   
+  public void reflectY(float reflectY) {
+    float distanceToMove = 2 * (position.y - reflectY);
+    setPosition(new Vector3f(position.x, position.y - distanceToMove, position.z));
+    setPitch(-pitch);
+  }
+  
+  public void cleanUpFBO() {
+    fbo.cleanUp();
+  }
 }

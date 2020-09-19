@@ -24,6 +24,10 @@ public class Entity {
     this.position.z += dz;
   }
   
+  public void increasePosition(Vector3f dPos) {
+    this.position.add(dPos);
+  }
+  
   public void increaseRotation(float dx, float dy, float dz) {
     this.rotX += dx;
     this.rotY += dy;

@@ -17,8 +17,8 @@ public class MousePicker {
     Vector2f viewportSpace = new Vector2f(DisplayManager.getWidth() / 2f, DisplayManager.getHeight() / 2f);
     
     //convert to normalized device space
-    Vector2f normalizedDeviceSpace = new Vector2f((2f * viewportSpace.x) / DisplayManager.getWidth() - 1f, (2f * viewportSpace.y) / DisplayManager.getHeight() -1f);
-  
+    Vector2f normalizedDeviceSpace = new Vector2f((2f * viewportSpace.x) / DisplayManager.getWidth() - 1f, (2f * viewportSpace.y) / DisplayManager.getHeight() - 1f);
+    
     //convert to clip space (just add a -1 in the z so that it faces inward)
     Vector4f clipSpace = new Vector4f(normalizedDeviceSpace.x, normalizedDeviceSpace.y, -1f, 1f);
     
@@ -44,7 +44,7 @@ public class MousePicker {
     Vector3f mouseRayNormalized = new Vector3f();
     mouseRay.normalize(mouseRayNormalized);
     
-    return  mouseRay;
+    return mouseRay;
   }
-
+  
 }

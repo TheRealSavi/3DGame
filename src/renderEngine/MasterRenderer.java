@@ -1,13 +1,14 @@
 package renderEngine;
 
 import engineTester.Game;
+import entities.Camera;
 import entities.Entity;
 import entities.EntityRenderer;
 import guis.GuiRenderer;
-import org.joml.Quaternionf;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
-import postProcessing.Fbo;
-import postProcessing.PostProcessor;
+import screenRenderers.SingleScreenRenderer;
+import screenRenderers.SplitScreenRenderer;
 import skybox.SkyboxRenderer;
 import terrains.Terrain;
 import terrains.TerrainRenderer;
@@ -15,9 +16,6 @@ import water.WaterRenderer;
 import water.WaterTile;
 
 public class MasterRenderer {
-  
-  private static final int[] size = DisplayManager.getFrameBufferSize();
-  private static final Fbo sceneFBO = new Fbo(size[0], size[1], Fbo.DEPTH_RENDER_BUFFER);
   
   public static void enableCulling() {
     GL11.glEnable(GL11.GL_CULL_FACE);
@@ -30,42 +28,59 @@ public class MasterRenderer {
   
   public static void prepare() {
     GL11.glEnable(GL11.GL_DEPTH_TEST);
-    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
     GL11.glClearColor(1, 1, 1, 1);
+    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
   }
   
-  public static void render() {
-    
-    for (WaterTile water : Game.waters) {
-      WaterRenderer.addWater(water);
-    }
-    
-    WaterRenderer.renderTextures();
-    
+  public static void renderScene(Camera camera, boolean doWaterRendering, Vector4f clippingPlane) {
     for (Entity entity : Game.entities) {
       EntityRenderer.addEntity(entity);
     }
     for (Terrain terrain : Game.terrains) {
       TerrainRenderer.addTerrain(terrain);
     }
+    if (doWaterRendering) {
+      for (WaterTile water : Game.waters) {
+        WaterRenderer.addWater(water);
+      }
+    }
     
-    sceneFBO.bindFrameBuffer();
-    
+    camera.bindFBO();
     MasterRenderer.prepare();
-    SkyboxRenderer.render(Game.cameras.get(0), Game.directionalLights.get(0));
-    EntityRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights);
-    TerrainRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights);
-    WaterRenderer.render(Game.cameras.get(0), Game.pointLights, Game.directionalLights);
     
-    sceneFBO.unbindFrameBuffer();
+    SkyboxRenderer.render(camera, Game.directionalLights.get(0));
+    EntityRenderer.render(camera, Game.pointLights, Game.directionalLights, clippingPlane);
+    TerrainRenderer.render(camera, Game.pointLights, Game.directionalLights, clippingPlane);
+    if (doWaterRendering) {
+      WaterRenderer.render(camera, Game.pointLights, Game.directionalLights);
+    }
     
-    PostProcessor.doPostProcessing(sceneFBO.getColorTexture());
-    
-    GuiRenderer.render(Game.guis);
+    camera.unbindFBO();
   }
   
-  public static void cleanUp() {
-    sceneFBO.cleanUp();
+  public static void render() {
+    
+    for (Camera camera : Game.cameras) {
+      for (WaterTile water : Game.waters) {
+        WaterRenderer.addWater(water);
+      }
+      WaterRenderer.renderTextures(camera);
+    }
+    
+    WaterRenderer.updateMoveFactor();
+    
+    for (Camera camera : Game.cameras) {
+      renderScene(camera, true, new Vector4f(0, 0, 0, 0));
+      camera.doPostProcessing();
+    }
+    
+    if (Game.players.size() >= 2)
+      SplitScreenRenderer.render();
+    else if (Game.players.size() == 1) {
+      SingleScreenRenderer.render();
+    }
+    
+    GuiRenderer.render(Game.guis);
   }
   
 }

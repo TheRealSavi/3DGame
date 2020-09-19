@@ -68,10 +68,10 @@ public class TerrainShader extends ShaderProgram {
       location_pointLightColors[i] = super.getUniformLocation("pointLightColors[" + i + "]");
       location_pointLightAttenuations[i] = super.getUniformLocation("pointLightAttenuations[" + i + "]");
     }
-  
+    
     location_directionalLightDirections = new int[MAX_LIGHTS];
     location_directionalLightColors = new int[MAX_LIGHTS];
-  
+    
     for (int i = 0; i < MAX_LIGHTS; i++) {
       location_directionalLightDirections[i] = super.getUniformLocation("directionalLightDirections[" + i + "]");
       location_directionalLightColors[i] = super.getUniformLocation("directionalLightColors[" + i + "]");

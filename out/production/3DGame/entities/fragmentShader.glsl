@@ -26,8 +26,8 @@ vec3 applyFog(vec3 rgb, float distance, vec3 rayDir, vec3 rayPos, vec3 sunDir) {
     float fogAmmount = (0.0015625 / fogDensity) * exp(-rayPos.y * fogDensity) * (1.0 - exp(-distance * rayDir.y * fogDensity)) / rayDir.y;
     fogAmmount = clamp(fogAmmount, 0.0, 1.0);
 
-    float sunAmmount =  max( dot(rayDir, sunDir), 0.0);
-    vec3 fogColor = mix( vec3(0.5, 0.5, 0.7), vec3(1.0, 0.9, 0.7), sunAmmount);
+    float sunAmmount =  max(dot(rayDir, sunDir), 0.0);
+    vec3 fogColor = mix(vec3(0.5, 0.5, 0.7), vec3(1.0, 0.9, 0.7), sunAmmount);
 
     return mix(rgb, fogColor, fogAmmount);
 
@@ -95,5 +95,5 @@ void main(void) {
 
     vec4 lightedTextureColor = vec4(totalDiffusedLighting, 1.0) * textureColor + vec4(totalSpecularLighting, 1.0);
 
-    out_color = vec4(applyFog(lightedTextureColor.rgb, distanceFromCamera, cameraRayDirection, pass_cameraPosition, normalize(directionalLightDirections[0]) ), 1.0);
+    out_color = vec4(applyFog(lightedTextureColor.rgb, distanceFromCamera, cameraRayDirection, pass_cameraPosition, normalize(directionalLightDirections[0])), 1.0);
 }

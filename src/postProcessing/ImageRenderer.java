@@ -1,37 +1,46 @@
 package postProcessing;
 
+import models.RawModel;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import renderEngine.Loader;
+import renderEngine.MasterRenderer;
 
 public class ImageRenderer {
   
-  private Fbo fbo;
+  private static final float[] POSITIONS = {-1, 1, -1, -1, 1, 1, 1, -1};
+  private static final RawModel QUAD = Loader.loadToVAO(POSITIONS, 2);
   
-  protected ImageRenderer(int width, int height) {
-    this.fbo = new Fbo(width, height, Fbo.NONE);
-  }
-  
-  protected ImageRenderer() {
-  }
-  
-  protected void renderQuad() {
-    if (fbo != null) {
-      fbo.bindFrameBuffer();
-    }
-    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+  public static void renderToFBO(Fbo fbo) {
+    fbo.bindFrameBuffer();
+    MasterRenderer.prepare();
+    
+    GL30.glBindVertexArray(QUAD.getVaoID());
+    GL20.glEnableVertexAttribArray(0);
+    GL11.glDisable(GL11.GL_DEPTH_TEST);
+    
     GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
-    if (fbo != null) {
-      fbo.unbindFrameBuffer();
-    }
+    
+    GL11.glEnable(GL11.GL_DEPTH_TEST);
+    GL20.glDisableVertexAttribArray(0);
+    GL30.glBindVertexArray(0);
+    fbo.unbindFrameBuffer();
   }
   
-  protected int getOutputTexture() {
-    return fbo.getColorTexture();
-  }
-  
-  protected void cleanUp() {
-    if (fbo != null) {
-      fbo.cleanUp();
-    }
+  public static void renderToScreen() {
+    //needs a texture and shader bound first
+    MasterRenderer.prepare();
+    
+    GL30.glBindVertexArray(QUAD.getVaoID());
+    GL20.glEnableVertexAttribArray(0);
+    GL11.glDisable(GL11.GL_DEPTH_TEST);
+    
+    GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
+    
+    GL11.glEnable(GL11.GL_DEPTH_TEST);
+    GL20.glDisableVertexAttribArray(0);
+    GL30.glBindVertexArray(0);
   }
   
 }
