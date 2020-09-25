@@ -17,10 +17,13 @@ public class ContrastEffect {
   
   public Fbo render(int texturedID) {
     shader.start();
+    
     GL13.glActiveTexture(GL13.GL_TEXTURE0);
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturedID);
     ImageRenderer.renderToFBO(fbo);
+    
     shader.stop();
+    
     return fbo;
   }
   

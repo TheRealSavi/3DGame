@@ -12,9 +12,9 @@ public class SplitScreenRenderer {
   public static void render() {
     shader.start();
     
-    for (int i = 0; i < PostProcessor.getFbos().size(); i++) {
+    for (int i = 0; i < PostProcessor.getScreenCount(); i++) {
       GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, PostProcessor.getFbos().get(i).getColorTexture());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, PostProcessor.getFinalScreenFBO(i).getColorTexture());
     }
     
     shader.connectTextureUnits();

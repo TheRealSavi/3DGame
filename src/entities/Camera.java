@@ -32,6 +32,10 @@ public class Camera {
     this.fbo = new Fbo(size[0], size[1], size[0], size[1], 0, 0, Fbo.DEPTH_RENDER_BUFFER);
   }
   
+  public Fbo getFBO() {
+    return this.fbo;
+  }
+  
   public void setFBO(Fbo _fbo) {
     fbo.cleanUp();
     this.fbo = _fbo;
@@ -56,7 +60,7 @@ public class Camera {
   }
   
   public void doPostProcessing() {
-    PostProcessor.doPostProcessing(fbo.getColorTexture());
+    PostProcessor.doPostProcessing(fbo.getColorTexture(), this);
   }
   
   public Vector3f getPosition() {
@@ -82,8 +86,10 @@ public class Camera {
   }
   
   public void setFOV(float FOV) {
-    this.FOV = FOV;
-    this.projectionMatrix = Maths.createProjectionMatrix(FOV, NEAR_PLANE, FAR_PLANE);
+    if (this.FOV != FOV) {
+      this.FOV = FOV;
+      this.projectionMatrix = Maths.createProjectionMatrix(FOV, NEAR_PLANE, FAR_PLANE);
+    }
   }
   
   public float getFOV() {

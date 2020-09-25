@@ -3,7 +3,7 @@ package terrains;
 import java.util.Random;
 
 public class HeightsGenerator {
-  private static final float AMPLITUDE = 900f;
+  private static final float AMPLITUDE = 170f;
   
   private final Random random = new Random();
   private final int seed;

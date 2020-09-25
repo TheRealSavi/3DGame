@@ -29,9 +29,9 @@ public class WaterRenderer {
   private static final RawModel quad = Loader.loadToVAO(vertices, 2);
   
   private static final WaterShader shader = new WaterShader();
-  private static final int distortionMap = Loader.loadTexture("waterDistortionMap");
+  public static final int distortionMap = Loader.loadTexture("waterDistortionMap");
   private static final float MOVE_SPEED = 0.03f;
-  private static float currentMoveFactor = 0;
+  public static float currentMoveFactor = 0;
   
   private static final Map<Camera, List<Fbo>> waterTextures = new HashMap<>();
   
@@ -79,6 +79,8 @@ public class WaterRenderer {
     GL11.glEnable(GL11.GL_BLEND);
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     
+    MasterRenderer.disableCulling();
+    
     shader.connectTextureUnits();
     
     shader.loadProjectionMatrix(camera.getProjectionMatrix());
@@ -98,6 +100,8 @@ public class WaterRenderer {
       shader.loadModelMatrix(modelMatrix);
       GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, quad.getVertexCount());
     }
+    
+    MasterRenderer.enableCulling();
     
     GL11.glDisable(GL11.GL_BLEND);
     

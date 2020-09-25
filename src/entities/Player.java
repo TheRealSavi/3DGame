@@ -20,7 +20,9 @@ public class Player extends Entity {
     super(model, position, rotX, rotY, rotZ, scale);
     
     camera = new Camera(90, 1, 3500);
-    camera.setPosition(position);
+    Vector3f cameraPosition = new Vector3f();
+    position.add(new Vector3f(0, 10, 0), cameraPosition);
+    camera.setPosition(cameraPosition);
     camera.setPitch(rotX);
     camera.setYaw(rotY);
     camera.setRoll(rotZ);
@@ -61,6 +63,9 @@ public class Player extends Entity {
     
     if (DisplayManager.getInput().isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
       currentSpeed *= RUN_MODIFIER;
+      camera.setFOV(115);
+    } else {
+      camera.setFOV(95);
     }
     
     

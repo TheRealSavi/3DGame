@@ -130,7 +130,7 @@ void main(void) {
     float refractiveFactor = dot(cameraRayDirection, normal);
     refractiveFactor = pow(refractiveFactor, 3);
 
-    vec4 waterTexture = mix(refractColor, reflectColor, refractiveFactor);
+    vec4 waterTexture = mix(reflectColor, refractColor, refractiveFactor);
 
     vec4 lightedTexture = vec4(totalDiffusedLighting, 1.0) * mix(waterTexture, vec4(0.0, 0.3, 0.5, 1.0), 0.12) + vec4(totalSpecularLighting, 0.0);
 

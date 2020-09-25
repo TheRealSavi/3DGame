@@ -7,6 +7,8 @@ import entities.EntityRenderer;
 import guis.GuiRenderer;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
+import particles.Particle;
+import particles.ParticleRenderer;
 import screenRenderers.SingleScreenRenderer;
 import screenRenderers.SplitScreenRenderer;
 import skybox.SkyboxRenderer;
@@ -44,6 +46,9 @@ public class MasterRenderer {
         WaterRenderer.addWater(water);
       }
     }
+    for (Particle particle : Game.particles) {
+      ParticleRenderer.addParticle(particle);
+    }
     
     camera.bindFBO();
     MasterRenderer.prepare();
@@ -54,6 +59,7 @@ public class MasterRenderer {
     if (doWaterRendering) {
       WaterRenderer.render(camera, Game.pointLights, Game.directionalLights);
     }
+    ParticleRenderer.render(camera);
     
     camera.unbindFBO();
   }
@@ -69,6 +75,11 @@ public class MasterRenderer {
     
     WaterRenderer.updateMoveFactor();
     
+    for (Particle particle : Game.particles) {
+      ParticleRenderer.addParticle(particle);
+    }
+    ParticleRenderer.updateParticles();
+    
     for (Camera camera : Game.cameras) {
       renderScene(camera, true, new Vector4f(0, 0, 0, 0));
       camera.doPostProcessing();
@@ -79,6 +90,7 @@ public class MasterRenderer {
     else if (Game.players.size() == 1) {
       SingleScreenRenderer.render();
     }
+    
     
     GuiRenderer.render(Game.guis);
   }

@@ -11,6 +11,7 @@ import models.RawModel;
 import objConverter.OBJFileLoader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import particles.Particle;
 import postProcessing.Fbo;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
@@ -33,6 +34,7 @@ public class Game {
   public static List<Entity> entities = new ArrayList<>();
   public static List<Player> players = new ArrayList<>();
   public static List<Terrain> terrains = new ArrayList<>();
+  public static List<Particle> particles = new ArrayList<>();
   public static List<Gui> guis = new ArrayList<>();
   public static List<WaterTile> waters = new ArrayList<>();
   
@@ -58,23 +60,25 @@ public class Game {
   }
   
   public static void addPlayer2() {
-    //create fern model
-    RawModel rawFernModel = OBJFileLoader.loadOBJ("fern");
-    Model fernModel = new Model(Loader.loadTexture("fern"), rawFernModel);
-    fernModel.setShineDamper(5);
-    fernModel.setReflectivity(0f);
-    fernModel.setTransparency(true);
-    fernModel.setUseFakeLighting(false);
-    
-    int[] size = DisplayManager.getFrameBufferSize();
-    //create player2
-    Player player2 = new Player(fernModel, new Vector3f(50, 10, -50), 0f, 0f, 0f, 1.0f);
-    entities.add(player2);
-    players.add(player2);
-    player2.getCamera().setFBO(new Fbo(size[0], size[1], size[0] / 2, size[1], size[0] / 2, 0, Fbo.DEPTH_RENDER_BUFFER));
-    cameras.add(player2.getCamera());
-    players.get(0).getCamera().setFBO(new Fbo(size[0], size[1], size[0] / 2, size[1], 0, 0, Fbo.DEPTH_RENDER_BUFFER));
-    //update player1's fbo size and viewport
+    if (players.size() == 1) {
+      //create fern model
+      RawModel rawFernModel = OBJFileLoader.loadOBJ("fern");
+      Model fernModel = new Model(Loader.loadTexture("fern"), rawFernModel);
+      fernModel.setShineDamper(5);
+      fernModel.setReflectivity(0f);
+      fernModel.setTransparency(true);
+      fernModel.setUseFakeLighting(false);
+      
+      int[] size = DisplayManager.getFrameBufferSize();
+      //create player2
+      Player player2 = new Player(fernModel, new Vector3f(50, 10, -50), 0f, 0f, 0f, 0.25f);
+      entities.add(player2);
+      players.add(player2);
+      player2.getCamera().setFBO(new Fbo(size[0], size[1], size[0] / 2, size[1], size[0] / 2, 0, Fbo.DEPTH_RENDER_BUFFER));
+      cameras.add(player2.getCamera());
+      players.get(0).getCamera().setFBO(new Fbo(size[0], size[1], size[0] / 2, size[1], 0, 0, Fbo.DEPTH_RENDER_BUFFER));
+      //update player1's fbo size and viewport
+    }
     
   }
   
@@ -115,11 +119,11 @@ public class Game {
     
     //create a gui
     Gui gui = new Gui(Loader.loadTexture("cross"), new Vector2f(0f, 0f), new Vector2f(0.02f, 0.02f));
-    guis.add(gui);
+    // guis.add(gui);
     
     int[] size = DisplayManager.getFrameBufferSize();
     //create player1
-    Player player1 = new Player(fernModel, new Vector3f(0, 10, 0), 0f, 0f, 0f, 1.0f);
+    Player player1 = new Player(fernModel, new Vector3f(0, 10, 0), 0f, 0f, 0f, 0.25f);
     entities.add(player1);
     players.add(player1);
     cameras.add(player1.getCamera());
@@ -128,7 +132,7 @@ public class Game {
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         for (int k = 0; k < 5; k++) {
-          entities.add(new Entity(stallModel, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
+          //entities.add(new Entity(stallModel, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
         }
       }
     }
