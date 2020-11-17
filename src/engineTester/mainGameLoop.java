@@ -34,6 +34,7 @@ public class mainGameLoop {
     
     //load the main menu
     Game.loadMainMenu();
+    DisplayManager.lockCursor();
     
     //main game loop
     while (!DisplayManager.shouldClose()) {
