@@ -12,6 +12,8 @@ import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
 import skybox.SkyboxRenderer;
+import terrains.HeightsGenerator;
+import terrains.Terrain;
 import terrains.TerrainRenderer;
 import water.WaterRenderer;
 
@@ -78,7 +80,10 @@ public class mainGameLoop {
           }
           
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
-            Game.terrains.get(0).regenModel();
+            System.out.println("Seed : " + HeightsGenerator.newSeed());
+            for (Terrain terrain : Game.terrains) {
+              terrain.regenModel();
+            }
           }
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_PERIOD)) {
             Game.addPlayer2();

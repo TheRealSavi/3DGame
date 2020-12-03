@@ -138,10 +138,10 @@ public class Game {
     }
     
     //create terrains and waters
-    for (int i = 0; i < 1; i++) {
-      for (int j = 0; j < 1; j++) {
+    for (int i = -1; i < 1; i++) {
+      for (int j = -1; j < 1; j++) {
         terrains.add(new Terrain(i, j, texturePack, blendMapID));
-        waters.add(new WaterTile(400 + i * 800, 400 + j * 800, -7));
+       // waters.add(new WaterTile(400 + i * 800, 400 + j * 800, -7));
       }
     }
     
