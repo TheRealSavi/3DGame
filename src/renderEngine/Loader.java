@@ -115,6 +115,11 @@ public class Loader {
     
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); // UNBIND CURRENT VBO
   }
+
+  public static void deleteVAO(int vao) {
+    vaos.remove(vao);
+    GL30.glDeleteVertexArrays(vao);
+  }
   
   public static void cleanUp() {
     for (int vao : vaos) {

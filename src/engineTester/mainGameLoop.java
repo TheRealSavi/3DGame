@@ -72,9 +72,6 @@ public class mainGameLoop {
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_Y)) {
             Game.particles.add(new Particle(new Vector3f(20, 20, 20), new Vector3f(0, 300, 0), 5, 0, 1, 4));
           }
-
-          System.out.println(MousePicker.createMouseRay(Game.players.get(0).getCamera()));
-          //Game.fernEntity.setPosition();
           
           MasterRenderer.render();
           
