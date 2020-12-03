@@ -37,6 +37,8 @@ public class Game {
   public static List<Particle> particles = new ArrayList<>();
   public static List<Gui> guis = new ArrayList<>();
   public static List<WaterTile> waters = new ArrayList<>();
+
+  public static Entity fernEntity;
   
   // public static float fogDensity = 0.01146f;
   public static float fogDensity = 0.005060278f;
@@ -100,6 +102,9 @@ public class Game {
     fernModel.setReflectivity(0f);
     fernModel.setTransparency(true);
     fernModel.setUseFakeLighting(false);
+
+    fernEntity = new Entity(fernModel, new Vector3f(0,0,0), 0, 0, 0, 1);
+    entities.add(fernEntity);
     
     //create stall model
     RawModel rawStallModel = OBJFileLoader.loadOBJ("stall");
@@ -138,10 +143,10 @@ public class Game {
     }
     
     //create terrains and waters
-    for (int i = -1; i < 1; i++) {
-      for (int j = -1; j < 1; j++) {
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 2; j++) {
         terrains.add(new Terrain(i, j, texturePack, blendMapID));
-       // waters.add(new WaterTile(400 + i * 800, 400 + j * 800, -7));
+        waters.add(new WaterTile(400 + i * 800, 400 + j * 800, -7));
       }
     }
     

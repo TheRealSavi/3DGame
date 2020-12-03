@@ -3,7 +3,7 @@ package terrains;
 import java.util.Random;
 
 public class HeightsGenerator {
-  private static final float AMPLITUDE = 210f;
+  private static final float AMPLITUDE = 160f;
   
   private static final Random random = new Random();
   private static int seed = random.nextInt(1000000000);
@@ -21,7 +21,7 @@ public class HeightsGenerator {
   public static float generateHeight(float x, float z) {
     float total = 0f;
     total += getInterpolatedNoise(x / 8f, z / 8f) * AMPLITUDE;
-    total += getInterpolatedNoise(x / 4f, z / 4f) * AMPLITUDE / 8f;
+    total += getInterpolatedNoise(x / 4f, z / 4f) * AMPLITUDE / 4f;
     total += getInterpolatedNoise(x / 2f, z / 2f) * AMPLITUDE / 16f;
     return total;
   }

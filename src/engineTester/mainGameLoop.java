@@ -4,6 +4,9 @@ import entities.Entity;
 import entities.EntityRenderer;
 import entities.Player;
 import guis.GuiRenderer;
+import models.Model;
+import models.RawModel;
+import objConverter.OBJFileLoader;
 import org.joml.Vector3f;
 import particles.Particle;
 import particles.ParticleRenderer;
@@ -15,6 +18,7 @@ import skybox.SkyboxRenderer;
 import terrains.HeightsGenerator;
 import terrains.Terrain;
 import terrains.TerrainRenderer;
+import toolBox.MousePicker;
 import water.WaterRenderer;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -68,6 +72,9 @@ public class mainGameLoop {
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_Y)) {
             Game.particles.add(new Particle(new Vector3f(20, 20, 20), new Vector3f(0, 300, 0), 5, 0, 1, 4));
           }
+
+          System.out.println(MousePicker.createMouseRay(Game.players.get(0).getCamera()));
+          //Game.fernEntity.setPosition();
           
           MasterRenderer.render();
           
