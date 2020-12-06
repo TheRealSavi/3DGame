@@ -18,6 +18,7 @@ import skybox.SkyboxRenderer;
 import terrains.HeightsGenerator;
 import terrains.Terrain;
 import terrains.TerrainRenderer;
+import toolBox.FastNoise;
 import toolBox.MousePicker;
 import water.WaterRenderer;
 
@@ -41,6 +42,8 @@ public class mainGameLoop {
     //load the main menu
     Game.loadMainMenu();
     DisplayManager.lockCursor();
+
+    HeightsGenerator.setNoiseType(FastNoise.NoiseType.CubicFractal);
     
     //main game loop
     while (!DisplayManager.shouldClose()) {
@@ -52,7 +55,6 @@ public class mainGameLoop {
         case MENU:
           
           MasterRenderer.prepare();
-          
           SkyboxRenderer.render(Game.cameras.get(0), Game.directionalLights.get(0));
           
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ENTER)) {
@@ -60,7 +62,7 @@ public class mainGameLoop {
             Game.loadGameObjects();
             Game.state = Game.State.GAME;
           }
-          
+
           break;
         
         case GAME:
