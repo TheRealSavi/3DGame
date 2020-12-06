@@ -1,28 +1,41 @@
 package terrains;
 
+import toolBox.FastNoise;
+
 import java.util.Random;
 
 public class HeightsGenerator {
-  private static final float AMPLITUDE = 160f;
+  private static final float AMPLITUDE = 280f;
   
   private static final Random random = new Random();
   private static int seed = random.nextInt(1000000000);
 
+  private static final FastNoise myNoise = new FastNoise(seed);
+
   public static int newSeed() {
     seed = random.nextInt(1000000000);
+    myNoise.SetSeed(seed);
     return seed;
   }
 
   public static int newSeed(int _seed) {
     seed = _seed;
+    myNoise.SetSeed(seed);
     return seed;
   }
 
   public static float generateHeight(float x, float z) {
+    myNoise.SetNoiseType(FastNoise.NoiseType.Perlin);
+
+  //  return myNoise.GetNoise(x,z) * AMPLITUDE;
+
+    x *= 8;
+    z *= 8;
+
     float total = 0f;
-    total += getInterpolatedNoise(x / 8f, z / 8f) * AMPLITUDE;
-    total += getInterpolatedNoise(x / 4f, z / 4f) * AMPLITUDE / 4f;
-    total += getInterpolatedNoise(x / 2f, z / 2f) * AMPLITUDE / 16f;
+    total += myNoise.GetNoise(x / 8f, z / 8f) * AMPLITUDE;
+    total += myNoise.GetNoise(x / 4f, z / 4f) * AMPLITUDE / 4f;
+    total += myNoise.GetNoise(x / 2f, z / 2f) * AMPLITUDE / 16f;
     return total;
   }
   
