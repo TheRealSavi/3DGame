@@ -32,7 +32,7 @@ public class Terrain {
   }
   
   public void regenModel() {
-    Loader.deleteVAO(this.model.getVaoID());
+    this.model.getVAO().delete();
     this.model = generateTerrain();
   }
   

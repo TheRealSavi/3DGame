@@ -83,7 +83,7 @@ public class SkyboxRenderer {
     
     GL11.glDisable(GL11.GL_DEPTH_TEST);
     
-    GL30.glBindVertexArray(CUBE.getVaoID());
+    GL30.glBindVertexArray(CUBE.getVAO().getId());
     GL20.glEnableVertexAttribArray(0);
     
     bindTextures();

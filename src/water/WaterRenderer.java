@@ -60,8 +60,8 @@ public class WaterRenderer {
   
   public static void render(Camera camera, List<PointLight> pointLights, List<DirectionalLight> directionalLights) {
     shader.start();
-    
-    GL30.glBindVertexArray(quad.getVaoID());
+
+    quad.getVAO().bind();
     GL20.glEnableVertexAttribArray(0);
     
     GL13.glActiveTexture(GL13.GL_TEXTURE0);

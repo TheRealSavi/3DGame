@@ -84,11 +84,38 @@ public class mainGameLoop {
           }
           
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
-            System.out.println("Seed : " + HeightsGenerator.newSeed());
+            HeightsGenerator.newSeed();
             for (Terrain terrain : Game.terrains) {
               terrain.regenModel();
             }
           }
+
+          if (DisplayManager.getInput().isKeyDown(GLFW_KEY_UP)) {
+            HeightsGenerator.setAmplitude(HeightsGenerator.getAmplitude() + (float)(30 * DisplayManager.getDeltaTime()) );
+            for (Terrain terrain : Game.terrains) {
+              terrain.regenModel();
+            }
+          }
+          if (DisplayManager.getInput().isKeyDown(GLFW_KEY_DOWN)) {
+            HeightsGenerator.setAmplitude(HeightsGenerator.getAmplitude() - (float)(30 * DisplayManager.getDeltaTime()) );
+            for (Terrain terrain : Game.terrains) {
+              terrain.regenModel();
+            }
+          }
+
+          if (DisplayManager.getInput().isKeyDown(GLFW_KEY_MINUS)) {
+            HeightsGenerator.setJitter(HeightsGenerator.getJitter() - (float)(0.1 * DisplayManager.getDeltaTime()) );
+            for (Terrain terrain : Game.terrains) {
+              terrain.regenModel();
+            }
+          }
+          if (DisplayManager.getInput().isKeyDown(GLFW_KEY_EQUAL)) {
+            HeightsGenerator.setJitter(HeightsGenerator.getJitter() + (float)(0.1 * DisplayManager.getDeltaTime()) );
+            for (Terrain terrain : Game.terrains) {
+              terrain.regenModel();
+            }
+          }
+
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_PERIOD)) {
             Game.addPlayer2();
           }

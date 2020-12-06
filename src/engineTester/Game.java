@@ -137,14 +137,14 @@ public class Game {
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         for (int k = 0; k < 5; k++) {
-          //entities.add(new Entity(stallModel, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
+          entities.add(new Entity(stallModel, new Vector3f(i * 50, j * 50, k * -50), 0, 0, 0, 1.0f));
         }
       }
     }
     
     //create terrains and waters
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
+    for (int i = -2; i < 2; i++) {
+      for (int j = -2; j < 2; j++) {
         terrains.add(new Terrain(i, j, texturePack, blendMapID));
         waters.add(new WaterTile(400 + i * 800, 400 + j * 800, -7));
       }

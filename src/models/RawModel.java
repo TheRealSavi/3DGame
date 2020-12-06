@@ -1,17 +1,19 @@
 package models;
 
+import renderEngine.VAO;
+
 public class RawModel {
   
-  private final int vaoID;
+  private final VAO vao;
   private final int vertexCount;
   
-  public RawModel(int vaoID, int vertexCount) {
-    this.vaoID = vaoID;
+  public RawModel(VAO vao, int vertexCount) {
+    this.vao = vao;
     this.vertexCount = vertexCount;
   }
   
-  public int getVaoID() {
-    return vaoID;
+  public VAO getVAO() {
+    return vao;
   }
   
   public int getVertexCount() {

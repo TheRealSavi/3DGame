@@ -55,8 +55,8 @@ public class EntityRenderer {
   }
   
   private static void prepareModel(Model model) {
-    RawModel rawModel = model.getRawModel();
-    GL30.glBindVertexArray(rawModel.getVaoID());
+    model.getRawModel().getVAO().bind();
+
     GL20.glEnableVertexAttribArray(0);
     GL20.glEnableVertexAttribArray(1);
     GL20.glEnableVertexAttribArray(2);

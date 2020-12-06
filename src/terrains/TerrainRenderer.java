@@ -4,7 +4,6 @@ import engineTester.Game;
 import entities.Camera;
 import lights.DirectionalLight;
 import lights.PointLight;
-import models.RawModel;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -56,8 +55,8 @@ public class TerrainRenderer {
   }
   
   private static void prepareModel(Terrain terrain) {
-    RawModel rawModel = terrain.getModel();
-    GL30.glBindVertexArray(rawModel.getVaoID());
+    terrain.getModel().getVAO().bind();
+
     GL20.glEnableVertexAttribArray(0);
     GL20.glEnableVertexAttribArray(1);
     GL20.glEnableVertexAttribArray(2);

@@ -20,7 +20,7 @@ public class GuiRenderer {
   public static void render(List<Gui> guis) {
     shader.start(); //starts the gui shader
     
-    GL30.glBindVertexArray(quad.getVaoID()); //binds the VAO
+    quad.getVAO().bind(); //binds the VAO
     GL20.glEnableVertexAttribArray(0); //enables access to the gui VAO's vertex position data
     GL11.glEnable(GL11.GL_BLEND); //enables alpha blending for this draw routine
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); //sets the alpha blending parameters
@@ -37,7 +37,7 @@ public class GuiRenderer {
     GL11.glEnable(GL11.GL_DEPTH_TEST); //re-enable the depth buffer testing now that rendering is done
     GL11.glDisable(GL11.GL_BLEND); //re-disable alpha blending since rendering is done
     GL20.glDisableVertexAttribArray(0); //disables access to the gui VAO's vertex position data
-    GL30.glBindVertexArray(0); //unbind the gui VAO
+    quad.getVAO().unbind(); //unbind the gui VAO
     
     shader.stop(); //stops the gui shader
   }

@@ -16,7 +16,7 @@ public class ImageRenderer {
     fbo.bindFrameBuffer();
     MasterRenderer.prepare();
     
-    GL30.glBindVertexArray(QUAD.getVaoID());
+    GL30.glBindVertexArray(QUAD.getVAO().getId());
     GL20.glEnableVertexAttribArray(0);
     GL11.glDisable(GL11.GL_DEPTH_TEST);
     
@@ -32,7 +32,7 @@ public class ImageRenderer {
     //needs a texture and shader bound first
     MasterRenderer.prepare();
     
-    GL30.glBindVertexArray(QUAD.getVaoID());
+    GL30.glBindVertexArray(QUAD.getVAO().getId());
     GL20.glEnableVertexAttribArray(0);
     GL11.glDisable(GL11.GL_DEPTH_TEST);
     
