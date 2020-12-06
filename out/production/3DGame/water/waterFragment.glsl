@@ -127,6 +127,8 @@ void main(void) {
     vec4 reflectColor = texture(reflectionTexture, screenSpaceUpsideDown);
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
 
+    refractColor = vec4(1.0 - refractColor.r, 1.0 - refractColor.g, 1.0 - refractColor.b, 1);
+
     float refractiveFactor = dot(cameraRayDirection, normal);
     refractiveFactor = pow(refractiveFactor, 3);
 
