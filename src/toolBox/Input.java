@@ -8,12 +8,13 @@ public class Input {
   public Input(long window) {
     this.windowHandleReference = window;
   }
-  
+
   public boolean isKeyDown(int key) {
-    return glfwGetKey(this.windowHandleReference, key) == GLFW_TRUE;
+    int state = glfwGetKey(this.windowHandleReference, key);
+    return state == GLFW_PRESS;
   }
   
   public boolean isMouseButtonDown(int button) {
-    return (glfwGetMouseButton(this.windowHandleReference, button) == GLFW_TRUE);
+    return (glfwGetMouseButton(this.windowHandleReference, button) == GLFW_PRESS);
   }
 }

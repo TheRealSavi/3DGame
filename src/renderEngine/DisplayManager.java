@@ -26,6 +26,8 @@ public class DisplayManager {
   
   private static Vector2f lastFrameCursorPos = new Vector2f(0, 0);
   private static Vector2f deltaCursorPos = new Vector2f(0, 0);
+
+  private static boolean cursorLocked = false;
   
   private static Input input;
   
@@ -84,6 +86,7 @@ public class DisplayManager {
   }
   
   public static void lockCursor() {
+    cursorLocked = true;
     glfwSetInputMode(windowReference, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported()) {
       glfwSetInputMode(windowReference, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -96,10 +99,23 @@ public class DisplayManager {
   }
   
   public static void unlockCursor() {
+    cursorLocked = false;
     glfwSetInputMode(windowReference, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     if (glfwRawMouseMotionSupported()) {
       glfwSetInputMode(windowReference, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
     }
+  }
+
+  public static void toggleCursorLock() {
+    if (cursorLocked) {
+      unlockCursor();
+    } else {
+      lockCursor();
+    }
+  }
+
+  public static boolean isCursorLocked() {
+    return cursorLocked;
   }
   
   public static Vector2f getCursorPos() {

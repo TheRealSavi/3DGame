@@ -4,6 +4,7 @@ import engineTester.Game;
 import entities.Camera;
 import entities.Entity;
 import entities.EntityRenderer;
+import entities.Player;
 import guis.GuiRenderer;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
@@ -79,10 +80,11 @@ public class MasterRenderer {
       ParticleRenderer.addParticle(particle);
     }
     ParticleRenderer.updateParticles();
-    
-    for (Camera camera : Game.cameras) {
-      renderScene(camera, true, new Vector4f(0, 0, 0, 0));
-      camera.doPostProcessing();
+
+    for (Player player : Game.players) {
+    //for (Camera camera : Game.cameras) {
+      renderScene(player.getCamera(), true, new Vector4f(0, 0, 0, 0));
+      player.getCamera().doPostProcessing();
     }
     
     if (Game.players.size() >= 2)
