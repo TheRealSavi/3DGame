@@ -13,7 +13,7 @@ import java.util.List;
 
 public class VAO {
 
-  private int id;
+  private final int id;
   private final List<VBO> vbos = new ArrayList<>();
 
   public VAO() {

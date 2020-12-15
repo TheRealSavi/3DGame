@@ -1,10 +1,10 @@
 package terrains;
 
 public class TerrainTexturePack {
-  private int backgroundTextureID;
-  private int rTextureID;
-  private int gTextureID;
-  private int bTextureID;
+  private final int backgroundTextureID;
+  private final int rTextureID;
+  private final int gTextureID;
+  private final int bTextureID;
   
   public TerrainTexturePack(int backgroundTextureID, int rTextureID, int gTextureID, int bTextureID) {
     this.backgroundTextureID = backgroundTextureID;

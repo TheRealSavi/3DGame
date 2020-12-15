@@ -4,10 +4,10 @@ import org.lwjgl.glfw.GLFW;
 
 public class Lerp {
   
-  private double startTime;
-  private double endTime;
-  private int range;
-  private int startValue;
+  private final double startTime;
+  private final double endTime;
+  private final int range;
+  private final int startValue;
   
   public Lerp(int start, int end, double time) {
     startTime = GLFW.glfwGetTime();

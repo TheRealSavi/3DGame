@@ -19,7 +19,7 @@ public class ParticleRenderer {
   private static final RawModel quad = Loader.loadToVAO(VERTICES, 2);
   private static final ParticleShader shader = new ParticleShader();
   
-  private static List<Particle> particles = new ArrayList<>();
+  private static final List<Particle> particles = new ArrayList<>();
   
   public static void updateParticles() {
     for (Particle particle : particles) {

@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL15;
 
 public class VBO {
 
-  private int id;
+  private final int id;
 
   public VBO() {
     int vboID = GL15.glGenBuffers();
