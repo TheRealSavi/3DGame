@@ -49,7 +49,7 @@ public class mainGameLoop {
     while (!DisplayManager.shouldClose()) {
       DisplayManager.pollSystemEvents(); //allows glfw to do system level window management
       
-      // DisplayManager.logFPS(); //logs fps to console
+       DisplayManager.logFPS(); //logs fps to console
       
       switch (Game.state) {
         case MENU:
@@ -86,9 +86,10 @@ public class mainGameLoop {
           }
           
           if (DisplayManager.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
-            HeightsGenerator.newSeed();
-            for (Terrain terrain : Game.terrains) {
-              terrain.regenModel();
+            if (HeightsGenerator.getSeed() != HeightsGenerator.newSeed() ) {
+              for (Terrain terrain : Game.terrains) {
+                terrain.regenModel();
+              }
             }
           }
 

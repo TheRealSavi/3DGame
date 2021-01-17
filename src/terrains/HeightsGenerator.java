@@ -1,5 +1,6 @@
 package terrains;
 
+import renderEngine.DisplayManager;
 import toolBox.FastNoise;
 
 import java.util.Random;
@@ -13,7 +14,14 @@ public class HeightsGenerator {
 
   private static final FastNoise myNoise = new FastNoise(seed);
 
+  private static double timeOfLastSeed = 0;
+
   public static int newSeed() {
+    if (timeOfLastSeed + 0.3f > DisplayManager.getCurrentTime()) {
+      return seed;
+    }
+    timeOfLastSeed = DisplayManager.getCurrentTime();
+    System.out.println("Time called: " + timeOfLastSeed);
     seed = random.nextInt(1000000000);
     myNoise.SetSeed(seed);
     return seed;
@@ -22,6 +30,10 @@ public class HeightsGenerator {
   public static int newSeed(int _seed) {
     seed = _seed;
     myNoise.SetSeed(seed);
+    return seed;
+  }
+
+  public static int getSeed() {
     return seed;
   }
 

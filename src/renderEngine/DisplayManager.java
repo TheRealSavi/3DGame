@@ -65,7 +65,7 @@ public class DisplayManager {
     lockCursor();
   }
   
-  private static double getCurrentTime() {
+  public static double getCurrentTime() {
     return GLFW.glfwGetTime();
   }
   
